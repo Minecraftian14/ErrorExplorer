@@ -62,7 +62,12 @@ public class ValidationProcess {
 
         @Override
         public Maybe<T> validate(Object source, FailureBuilder b) {
-            return rule.validate(source, b).peek(callback::call);
+            return rule.validate(source, b).map(this::peek);
+        }
+
+        private T peek(T arg) {
+            callback.call(arg);
+            return arg;
         }
     }
 

@@ -4,7 +4,7 @@ import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.annotations.UnsafeProvider;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.maybe.VMonad;
+import be.jdevelopment.tools.validation.error.VMonad;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.Objects;
@@ -29,13 +29,13 @@ class PersonBuilder extends ValidationProcess {
 
     private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
     private static Maybe<String> validateEmailAddress(Object source, FailureBuilder builder) {
-        return VMonad.of(source)
+        return VMonad.of(source, builder)
                 .filter(Objects::nonNull)
-                .cut(() -> builder.withCode("required"))
+                .registerFailureCode("required")
                 .filter(String.class::isInstance)
-                .cut(() -> builder.withCode("type"))
+                .registerFailureCode("type")
                 .map(String.class::cast)
                 .filter(str -> EMAIL_PATTERN.matcher(str).matches())
-                .cut(() -> builder.withCode("format"));
+                .registerFailureCode("format");
     }
 }

@@ -6,6 +6,4 @@ public interface MaybeMonad {
 
     <U> Maybe<U> of(U some);
 
-    <U> Maybe<U> fail();
-
 }
