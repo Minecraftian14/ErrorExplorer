@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ValidationProcess {
 
-    protected final ObjectProvider provider;
+    private final ObjectProvider provider;
     protected final FailureBuilder failureBuilder;
     private Map<Property, ValidationRule> scriptMapping = new HashMap<>();
 

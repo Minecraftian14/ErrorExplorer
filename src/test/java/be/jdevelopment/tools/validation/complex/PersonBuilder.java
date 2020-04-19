@@ -7,15 +7,11 @@ import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.maybe.Maybe;
 import be.jdevelopment.tools.validation.error.VMonad;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static java.util.regex.Pattern.compile;
 
@@ -49,11 +45,9 @@ class PersonBuilder extends ValidationProcess {
         return VMonad.of(source, builder)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
-                .filter(Iterator.class::isInstance)
-                .map(Iterator.class::cast)
-                .map(iterator -> StreamSupport.stream(((Iterable<JsonNode>) () -> iterator).spliterator(), false).collect(Collectors.toList()))
-                .map(list -> list.stream().map(JsonNode::asText).toArray(String[]::new))
-                .registerFailureCode("type");
+                .filter(String[].class::isInstance)
+                .registerFailureCode("type")
+                .map(String[].class::cast);
     }
 
     private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");

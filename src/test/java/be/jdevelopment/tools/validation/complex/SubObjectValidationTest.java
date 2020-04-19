@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -79,7 +80,9 @@ public class SubObjectValidationTest {
         return property -> {
             JsonNode it = node.get(property.getName());
             if (it instanceof TextNode) return it.asText();
-            if (it instanceof ArrayNode) return it.elements();
+            if (it instanceof ArrayNode)
+                return StreamSupport.stream(((Iterable<JsonNode>) it::elements).spliterator(), false)
+                    .map(JsonNode::asText).toArray(String[]::new);
             if (!(it instanceof ValueNode) && it != null) return fromJsonNode(it);
 
             return it;

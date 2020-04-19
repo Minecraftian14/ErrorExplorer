@@ -1,6 +1,5 @@
 package be.jdevelopment.tools.validation.error;
 
-import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.maybe.Maybe;
 import be.jdevelopment.tools.validation.maybe.MaybeMonad;
 
@@ -45,7 +44,7 @@ public final class VMonad {
 
     static abstract class _Maybe<T> implements Maybe<T> {
 
-        protected final Structure structure;
+        final Structure structure;
         _Maybe(Structure structure) {
             this.structure = structure;
         }
