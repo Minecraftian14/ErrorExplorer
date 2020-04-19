@@ -2,11 +2,15 @@ package be.jdevelopment.tools.validation.simple;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.annotations.UnsafeProvider;
+import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
+import be.jdevelopment.tools.validation.error.InvalidUserInputException;
 import be.jdevelopment.tools.validation.maybe.Maybe;
 import be.jdevelopment.tools.validation.error.VMonad;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -14,15 +18,27 @@ import static java.util.regex.Pattern.compile;
 
 class PersonBuilder extends ValidationProcess {
 
-    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider, FailureBuilder builder) {
-        super(provider, builder);
+    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider) {
+        super(provider, null);
     }
 
-    Person build() {
+    private class FailureImpl implements Failure {
+        private String errorCode;
+        FailureImpl(String errorCode) { this.errorCode = errorCode;}
+        @Override public String getCode() { return errorCode; }
+    }
+
+    Person build() throws InvalidUserInputException {
         Person person = new Person();
+        HashSet<Failure> failures = new HashSet<>();
+        this.failureBuilder = errorCode -> failures.add(new FailureImpl(errorCode));
 
         addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddress, person::setEmailAddress)
                 .execute();
+
+        if (!failures.isEmpty()) {
+            throw new InvalidUserInputException(failures);
+        }
 
         return person;
     }

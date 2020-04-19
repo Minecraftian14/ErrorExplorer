@@ -1,7 +1,5 @@
 package be.jdevelopment.tools.validation.maybe;
 
-import be.jdevelopment.tools.validation.error.FailureBuilder;
-
 public interface Maybe<T> {
 
     /* Upper monad structure reference */
@@ -25,13 +23,6 @@ public interface Maybe<T> {
     }
 
     Maybe<T> filter(MaybePredicate<? super T> predicate);
-
-    @FunctionalInterface
-    interface MaybeTap {
-        void tap();
-    }
-
-    Maybe<T> tap(MaybeTap tap);
 
     Maybe<T> registerFailureCode(String code);
 

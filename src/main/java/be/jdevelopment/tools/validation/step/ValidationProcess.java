@@ -11,7 +11,7 @@ import java.util.Map;
 public class ValidationProcess {
 
     private final ObjectProvider provider;
-    protected final FailureBuilder failureBuilder;
+    protected FailureBuilder failureBuilder;
     private Map<Property, ValidationRule> scriptMapping = new HashMap<>();
 
     public ValidationProcess(ObjectProvider provider, FailureBuilder failureBuilder) {

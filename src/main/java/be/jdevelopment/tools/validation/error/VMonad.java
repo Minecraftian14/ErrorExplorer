@@ -79,11 +79,6 @@ public final class VMonad {
         }
 
         @Override public final
-        Maybe<T> tap(MaybeTap tap) {
-            return this;
-        }
-
-        @Override public final
         Maybe<T> registerFailureCode(String code) {
             return this;
         }
@@ -108,15 +103,6 @@ public final class VMonad {
 
         @Override public final
         Maybe<T> filter(MaybePredicate<? super T> predicate) {
-            return structure.fail();
-        }
-
-        @Override public final
-        Maybe<T> tap(MaybeTap tap) {
-            if (!isCut) {
-                tap.tap();
-                isCut = true;
-            }
             return structure.fail();
         }
 
