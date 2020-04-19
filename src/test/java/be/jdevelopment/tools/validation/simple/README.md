@@ -24,8 +24,8 @@ Method is put in the `PersonValidationBuilder` class for this example,
 but you could have put it in some shared package:
 ```java
 private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
-private static Maybe<String> validateEmailAddress(Object source, FailureBuilder builder) {
-    return VMonad.of(source, builder)
+private static Maybe<String> validateEmailAddress(Object source, MaybeMonad monad) {
+    return monad.of(source)
             .filter(Objects::nonNull)
             .registerFailureCode("required")
             .filter(String.class::isInstance)
@@ -51,11 +51,11 @@ The whole validation process for a `Person` is expressed by extending the
 The `ValidationProcess` provides basic methods to build a `Person`, so
 we just need to write the whole build method (which is independent of the
 `ValidationProcess` structure, so no override is done here):
-```
+```java
 Person build() throws InvalidUserInputException {
     Person person = new Person();
     HashSet<Failure> failures = new HashSet<>();
-    this.failureBuilder = errorCode -> failures.add(new FailureImpl(errorCode));
+    this.monad = VMonad.on(errorCode -> failures.add(new FailureImpl(errorCode)));
 
     addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddress, person::setEmailAddress)
             .execute();

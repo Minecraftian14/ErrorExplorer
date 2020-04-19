@@ -2,8 +2,9 @@ package be.jdevelopment.tools.validation.step;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.Property;
-import be.jdevelopment.tools.validation.error.FailureBuilder;
+import be.jdevelopment.tools.validation.error.VMonad;
 import be.jdevelopment.tools.validation.maybe.Maybe;
+import be.jdevelopment.tools.validation.maybe.MaybeMonad;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,16 +12,16 @@ import java.util.Map;
 public class ValidationProcess {
 
     private final ObjectProvider provider;
-    protected FailureBuilder failureBuilder;
+    protected MaybeMonad monad;
     private Map<Property, ValidationRule> scriptMapping = new HashMap<>();
 
-    public ValidationProcess(ObjectProvider provider, FailureBuilder failureBuilder) {
+    public ValidationProcess(ObjectProvider provider, MaybeMonad monad) {
+        this.monad = monad;
         this.provider = provider;
-        this.failureBuilder = failureBuilder;
     }
 
-    private static FailureBuilder deriveFromParent(Property property, FailureBuilder parentBuilder) {
-        return errorCode -> parentBuilder.withCode(String.format("%s.%s", property.getName(), errorCode));
+    private static MaybeMonad deriveFromParent(Property property, MaybeMonad baseMonad) {
+        return VMonad.on(errorCode -> baseMonad.fail().registerFailureCode(String.format("%s.%s", property.getName(), errorCode)));
     }
 
     public <T> ValidationProcess addStep(Property property, ValidationRule<T> rule, Callback<T> andThen) {
@@ -33,22 +34,22 @@ public class ValidationProcess {
     }
 
     public void execute() {
-        FailureBuilder subBuilder;
+        MaybeMonad subMonad;
         Property property;
         ValidationRule rule;
         Object source;
         for (Map.Entry<Property, ValidationRule> entry : scriptMapping.entrySet()) {
             property = entry.getKey();
             rule = entry.getValue();
-            subBuilder = deriveFromParent(property, failureBuilder);
-            source = provider.provideForm(property);
-            rule.validate(source, subBuilder);
+            subMonad = deriveFromParent(property, monad);
+            source = provider.provideFor(property);
+            rule.validate(source, subMonad);
         }
     }
 
     @FunctionalInterface
     public interface ValidationRule<T> {
-        Maybe<T> validate(Object source, FailureBuilder failureBuilder);
+        Maybe<T> validate(Object source, MaybeMonad workingMonad);
     }
 
     @FunctionalInterface
@@ -61,7 +62,7 @@ public class ValidationProcess {
         Callback<T> callback;
 
         @Override
-        public Maybe<T> validate(Object source, FailureBuilder b) {
+        public Maybe<T> validate(Object source, MaybeMonad b) {
             return rule.validate(source, b).map(this::peek);
         }
 

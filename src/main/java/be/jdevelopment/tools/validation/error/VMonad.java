@@ -7,9 +7,8 @@ public final class VMonad {
 
     private VMonad() {}
 
-    static public <U> Maybe<U> of(U some, FailureBuilder builder) {
-        Structure structure = new Structure(builder);
-        return structure.of(some);
+    static public MaybeMonad on(FailureBuilder builder) {
+        return new Structure(builder);
     }
 
     /* Implementations */
@@ -32,13 +31,10 @@ public final class VMonad {
             return new Success<>(some, this);
         }
 
-        private Failure<?> lazyFailure = null;
         @SuppressWarnings("unchecked")
+        @Override public final
         <U> Maybe<U> fail() {
-            if (lazyFailure == null) {
-                lazyFailure = new Failure<>(this);
-            }
-            return (Maybe<U>) lazyFailure;
+            return (Maybe<U>) new Failure<>(this);
         }
     }
 
@@ -91,19 +87,21 @@ public final class VMonad {
             super(structure);
         }
 
+        @SuppressWarnings("unchecked")
         @Override public final
         <U> Maybe<U> flatMap(MaybeMap<? super T, ? extends Maybe<? extends U>> f) {
-            return structure.fail();
+            return (Maybe<U>) this;
         }
 
+        @SuppressWarnings("unchecked")
         @Override public final
         <U> Maybe<U> map(MaybeMap<? super T, ? extends U> f) {
-            return structure.fail();
+            return (Maybe<U>) this;
         }
 
         @Override public final
         Maybe<T> filter(MaybePredicate<? super T> predicate) {
-            return structure.fail();
+            return this;
         }
 
         @Override public final
@@ -112,7 +110,7 @@ public final class VMonad {
                 structure.builder.withCode(code);
                 isCut = true;
             }
-            return structure.fail();
+            return this;
         }
     }
 

@@ -40,8 +40,8 @@ simple validation example.
 
 On `Person` we define a validator for the `ADDRESS_PROPERTY` property:
 ```java
-private static Maybe<Address> validateAddress(Object source, FailureBuilder builder) {
-    return VMonad.of(source, builder)
+private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
+    return monad.of(source)
             .filter(Objects::nonNull)
             .registerFailureCode("required")
             .filter(ObjectProvider.class::isInstance)
@@ -57,8 +57,8 @@ we apply the regular build of an address.
 In order to validate the email address collection, we first define a
 validator on the collection as a whole:
 ```java
-private static Maybe<String[]> validateEmailAddressCollection(Object source, FailureBuilder builder) {
-    return VMonad.of(source, builder)
+private static Maybe<String[]> validateEmailAddressCollection(Object source, MaybeMonad monad) {
+    return monad.of(source)
             .filter(Objects::nonNull)
             .registerFailureCode("required")
             .filter(String[].class::isInstance)

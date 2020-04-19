@@ -1,9 +1,8 @@
 package be.jdevelopment.tools.validation.complex;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.error.VMonad;
+import be.jdevelopment.tools.validation.maybe.MaybeMonad;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.Objects;
@@ -13,22 +12,22 @@ import static java.util.regex.Pattern.compile;
 
 class AddressBuilder extends ValidationProcess {
 
-    AddressBuilder(ObjectProvider provider, FailureBuilder failureBuilder) {
-        super(provider, failureBuilder);
+    AddressBuilder(ObjectProvider provider, MaybeMonad monad) {
+        super(provider, monad);
     }
 
     Address build() {
         Address address = new Address();
 
-        addStep(Address.POSTAL_CODE, AddressBuilder::validatePostalCode, address::setPostalCode);
         addStep(Address.STREET, AddressBuilder::validateRequiredString, address::setStreet);
+        addStep(Address.POSTAL_CODE, AddressBuilder::validatePostalCode, address::setPostalCode);
         execute();
 
         return address;
     }
 
-    private static Maybe<String> validateRequiredString(Object source, FailureBuilder builder) {
-        return VMonad.of(source, builder)
+    private static Maybe<String> validateRequiredString(Object source, MaybeMonad monad) {
+        return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
                 .filter(String.class::isInstance)
@@ -37,8 +36,8 @@ class AddressBuilder extends ValidationProcess {
     }
 
     private static Pattern POSTAL_CODE_PATTERN = compile("^[0-9]+$");
-    private static Maybe<String> validatePostalCode(Object source, FailureBuilder builder) {
-        return VMonad.of(source, builder)
+    private static Maybe<String> validatePostalCode(Object source, MaybeMonad monad) {
+        return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
                 .filter(String.class::isInstance)

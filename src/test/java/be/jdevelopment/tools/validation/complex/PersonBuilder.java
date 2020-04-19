@@ -3,9 +3,8 @@ package be.jdevelopment.tools.validation.complex;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.Property;
 import be.jdevelopment.tools.validation.annotations.UnsafeProvider;
-import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.error.VMonad;
+import be.jdevelopment.tools.validation.maybe.MaybeMonad;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.ArrayList;
@@ -17,8 +16,8 @@ import static java.util.regex.Pattern.compile;
 
 class PersonBuilder extends ValidationProcess {
 
-    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider, FailureBuilder failureBuilder) {
-        super(provider, failureBuilder);
+    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider, MaybeMonad monad) {
+        super(provider, monad);
     }
 
     Person build() {
@@ -29,7 +28,7 @@ class PersonBuilder extends ValidationProcess {
             for (int i = 0; i < collection.length; i++) {
                 int j = i;
                 Property property = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY.getName(), j);
-                new ValidationProcess($ -> collection[j], failureBuilder)
+                new ValidationProcess($ -> collection[j], monad)
                         .addStep(property, PersonBuilder::validateEmailAddress, emailAddresses::add)
                         .execute();
             }
@@ -41,8 +40,8 @@ class PersonBuilder extends ValidationProcess {
         return person;
     }
 
-    private static Maybe<String[]> validateEmailAddressCollection(Object source, FailureBuilder builder) {
-        return VMonad.of(source, builder)
+    private static Maybe<String[]> validateEmailAddressCollection(Object source, MaybeMonad monad) {
+        return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
                 .filter(String[].class::isInstance)
@@ -51,8 +50,8 @@ class PersonBuilder extends ValidationProcess {
     }
 
     private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
-    private static Maybe<String> validateEmailAddress(Object source, FailureBuilder builder) {
-        return VMonad.of(source, builder)
+    private static Maybe<String> validateEmailAddress(Object source, MaybeMonad monad) {
+        return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
                 .filter(String.class::isInstance)
@@ -62,14 +61,14 @@ class PersonBuilder extends ValidationProcess {
                 .registerFailureCode("format");
     }
 
-    private static Maybe<Address> validateAddress(Object source, FailureBuilder builder) {
-        return VMonad.of(source, builder)
+    private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
+        return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
                 .filter(ObjectProvider.class::isInstance)
                 .registerFailureCode("type")
                 .map(ObjectProvider.class::cast)
-                .map(provider -> new AddressBuilder(provider, builder).build());
+                .map(provider -> new AddressBuilder(provider, monad).build());
     }
 
 }
