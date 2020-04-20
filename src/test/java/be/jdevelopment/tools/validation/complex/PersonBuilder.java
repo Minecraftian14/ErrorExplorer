@@ -22,18 +22,18 @@ class PersonBuilder extends ValidationProcess {
     Person build() {
         Person person = new Person();
 
-        addStep(Person.EMAIL_PROPERTY_TOKEN, PersonBuilder::validateEmailAddressCollection, collection -> {
+        addStep(Person.PersonProperty.EMAIL, PersonBuilder::validateEmailAddressCollection, collection -> {
             List<String> emailAddresses = new ArrayList<>();
             for (int i = 0; i < collection.length; i++) {
                 int j = i;
-                PropertyToken propertyToken = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY_TOKEN.getName(), j);
+                PropertyToken propertyToken = () -> String.format("%s[%d]", Person.PersonProperty.EMAIL.getName(), j);
                 new ValidationProcess($ -> collection[j], monad)
                         .addStep(propertyToken, PersonBuilder::validateEmailAddress, emailAddresses::add)
                         .execute();
             }
             person.setEmailAddresses(emailAddresses.toArray(new String[0]));
         });
-        addStep(Person.ADDRESS_PROPERTY_TOKEN, PersonBuilder::validateAddress, person::setAddress);
+        addStep(Person.PersonProperty.ADDRESS, PersonBuilder::validateAddress, person::setAddress);
         execute();
 
         return person;

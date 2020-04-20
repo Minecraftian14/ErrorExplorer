@@ -19,8 +19,8 @@ class AddressBuilder extends ValidationProcess {
     Address build() {
         Address address = new Address();
 
-        addStep(Address.STREET, AddressBuilder::validateRequiredString, address::setStreet);
-        addStep(Address.POSTAL_CODE, AddressBuilder::validatePostalCode, address::setPostalCode);
+        addStep(Address.AddressProperty.STREET, AddressBuilder::validateRequiredString, address::setStreet);
+        addStep(Address.AddressProperty.POSTAL_CODE, AddressBuilder::validatePostalCode, address::setPostalCode);
         execute();
 
         return address;
