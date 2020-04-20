@@ -2,7 +2,6 @@ package be.jdevelopment.tools.validation.complex;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.Property;
-import be.jdevelopment.tools.validation.annotations.UnsafeProvider;
 import be.jdevelopment.tools.validation.maybe.Maybe;
 import be.jdevelopment.tools.validation.maybe.MaybeMonad;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
@@ -16,7 +15,7 @@ import static java.util.regex.Pattern.compile;
 
 class PersonBuilder extends ValidationProcess {
 
-    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider, MaybeMonad monad) {
+    PersonBuilder(ObjectProvider provider, MaybeMonad monad) {
         super(provider, monad);
     }
 

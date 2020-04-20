@@ -1,7 +1,6 @@
 package be.jdevelopment.tools.validation.simple;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.annotations.UnsafeProvider;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.InvalidUserInputException;
 import be.jdevelopment.tools.validation.error.VMonad;
@@ -17,7 +16,7 @@ import static java.util.regex.Pattern.compile;
 
 class PersonBuilder extends ValidationProcess {
 
-    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider) {
+    PersonBuilder(ObjectProvider provider) {
         super(provider, null);
     }
 
