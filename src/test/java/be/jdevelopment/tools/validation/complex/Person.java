@@ -1,10 +1,10 @@
 package be.jdevelopment.tools.validation.complex;
 
-import be.jdevelopment.tools.validation.Property;
+import be.jdevelopment.tools.validation.PropertyToken;
 
 class Person {
-    static final Property EMAIL_PROPERTY = () -> "emailAddresses";
-    static final Property ADDRESS_PROPERTY = () -> "address";
+    static final PropertyToken EMAIL_PROPERTY_TOKEN = () -> "emailAddresses";
+    static final PropertyToken ADDRESS_PROPERTY_TOKEN = () -> "address";
 
     String[] emailAddresses;
     void setEmailAddresses(String[] arg) {

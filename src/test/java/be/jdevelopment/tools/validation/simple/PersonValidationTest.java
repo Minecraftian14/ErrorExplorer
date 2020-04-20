@@ -15,7 +15,7 @@ public class PersonValidationTest {
     public void should_validateProvider_givenBasicProperties() throws InvalidUserInputException {
 
         ObjectProvider provider = mock(ObjectProvider.class);
-        when(provider.provideFor(Person.EMAIL_PROPERTY)).thenReturn("hello.world@universe.com");
+        when(provider.provideFor(Person.EMAIL_PROPERTY_TOKEN)).thenReturn("hello.world@universe.com");
 
         Person pojo = new PersonBuilder(provider).build();
 
@@ -26,7 +26,7 @@ public class PersonValidationTest {
     public void should_invalidateProvider_givenInvalidEmail() {
 
         ObjectProvider provider = mock(ObjectProvider.class);
-        when(provider.provideFor(Person.EMAIL_PROPERTY)).thenReturn("hello.world_at_universe.com");
+        when(provider.provideFor(Person.EMAIL_PROPERTY_TOKEN)).thenReturn("hello.world_at_universe.com");
 
         try {
             new PersonBuilder(provider).build();
@@ -56,7 +56,7 @@ public class PersonValidationTest {
     public void should_invalidateProvider_givenNumericInput() {
 
         ObjectProvider provider = mock(ObjectProvider.class);
-        when(provider.provideFor(Person.EMAIL_PROPERTY)).thenReturn(0);
+        when(provider.provideFor(Person.EMAIL_PROPERTY_TOKEN)).thenReturn(0);
 
         try {
             new PersonBuilder(provider).build();

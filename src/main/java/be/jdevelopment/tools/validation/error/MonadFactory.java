@@ -1,19 +1,19 @@
 package be.jdevelopment.tools.validation.error;
 
-import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.maybe.MaybeMonad;
+import be.jdevelopment.tools.validation.maybe.Property;
+import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
 
-public final class VMonad {
+public final class MonadFactory {
 
-    private VMonad() {}
+    private MonadFactory() {}
 
-    static public MaybeMonad on(FailureBuilder builder) {
+    static public MonadOfProperties on(FailureBuilder builder) {
         return new Structure(builder);
     }
 
     /* Implementations */
 
-    static class Structure implements MaybeMonad {
+    static class Structure implements MonadOfProperties {
 
         private FailureBuilder builder;
         Structure(FailureBuilder builder) {
@@ -22,36 +22,36 @@ public final class VMonad {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <U> Maybe<U> lift(Maybe<? extends U> maybe) {
-            return (Maybe<U>) maybe;
+        public <U> Property<U> lift(Property<? extends U> property) {
+            return (Property<U>) property;
         }
 
         @Override
-        public <U> Maybe<U> of(U some) {
+        public <U> Property<U> of(U some) {
             return new Success<>(some, this);
         }
 
         @SuppressWarnings("unchecked")
         @Override public final
-        <U> Maybe<U> fail() {
-            return (Maybe<U>) new Failure<>(this);
+        <U> Property<U> fail() {
+            return (Property<U>) new Failure<>(this);
         }
     }
 
-    static abstract class _Maybe<T> implements Maybe<T> {
+    static abstract class _Property<T> implements Property<T> {
 
         final Structure structure;
-        _Maybe(Structure structure) {
+        _Property(Structure structure) {
             this.structure = structure;
         }
 
         @Override
-        final public MaybeMonad upperMonadStructureReference() {
+        final public MonadOfProperties upperMonadStructureReference() {
             return structure;
         }
     }
 
-    static class Success<T> extends _Maybe<T> {
+    static class Success<T> extends _Property<T> {
         private final T value;
 
         Success(T value, Structure structure) {
@@ -60,27 +60,25 @@ public final class VMonad {
         }
 
         @Override public final
-        <U> Maybe<U> flatMap(MaybeMap<? super T, ? extends Maybe<? extends U>> f) {
+        <U> Property<U> flatMap(MaybeMap<? super T, ? extends Property<? extends U>> f) {
             return upperMonadStructureReference().lift(f.apply(value));
         }
 
         @Override public final
-        <U> Maybe<U> map(MaybeMap<? super T, ? extends U> f) {
+        <U> Property<U> map(MaybeMap<? super T, ? extends U> f) {
             return upperMonadStructureReference().of(f.apply(value));
         }
 
-        @Override public final
-        Maybe<T> filter(MaybePredicate<? super T> predicate) {
+        @Override public final Property<T> filter(MaybePredicate<? super T> predicate) {
             return predicate.test(value) ? this : structure.fail();
         }
 
-        @Override public final
-        Maybe<T> registerFailureCode(String code) {
+        @Override public final Property<T> registerFailureCode(String code) {
             return this;
         }
     }
 
-    static class Failure<T> extends _Maybe<T> {
+    static class Failure<T> extends _Property<T> {
 
         private boolean isCut = false;
         Failure(Structure structure) {
@@ -89,23 +87,21 @@ public final class VMonad {
 
         @SuppressWarnings("unchecked")
         @Override public final
-        <U> Maybe<U> flatMap(MaybeMap<? super T, ? extends Maybe<? extends U>> f) {
-            return (Maybe<U>) this;
+        <U> Property<U> flatMap(MaybeMap<? super T, ? extends Property<? extends U>> f) {
+            return (Property<U>) this;
         }
 
         @SuppressWarnings("unchecked")
         @Override public final
-        <U> Maybe<U> map(MaybeMap<? super T, ? extends U> f) {
-            return (Maybe<U>) this;
+        <U> Property<U> map(MaybeMap<? super T, ? extends U> f) {
+            return (Property<U>) this;
         }
 
-        @Override public final
-        Maybe<T> filter(MaybePredicate<? super T> predicate) {
+        @Override public final Property<T> filter(MaybePredicate<? super T> predicate) {
             return this;
         }
 
-        @Override public final
-        Maybe<T> registerFailureCode(String code) {
+        @Override public final Property<T> registerFailureCode(String code) {
             if(!isCut) {
                 structure.builder.withCode(code);
                 isCut = true;

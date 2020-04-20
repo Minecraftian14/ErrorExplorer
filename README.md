@@ -62,7 +62,7 @@ Json.)
 The `ObjectProvider` provides an object on the basis of a `Property`:
 ```
 interface ObjectProvider {
-   Object provideFor(Property property);
+   Object provideFor(Property propertyToken);
 }
 ```
 A `Property` is as elementary as this:
@@ -72,7 +72,7 @@ interface Property {
 }
 ```
 Although the provision of an object will be done on the basis of the
-property name, this is not required at all.
+propertyToken name, this is not required at all.
 
 ### The `ValidationProcess` mechanism
 
@@ -85,7 +85,7 @@ you can add it *validation steps*:
 ```
 addStep( Property , Object -> Maybe<T> , T -> void );
 ```
-The first argument is the property that will be validated.
+The first argument is the propertyToken that will be validated.
 
 The second argument is the extraction process. During this stage, you'll
 map the user input to some `Maybe` resource, and advertize the

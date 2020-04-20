@@ -1,9 +1,9 @@
 package be.jdevelopment.tools.validation.complex;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.Property;
-import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.maybe.MaybeMonad;
+import be.jdevelopment.tools.validation.PropertyToken;
+import be.jdevelopment.tools.validation.maybe.Property;
+import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.ArrayList;
@@ -15,31 +15,31 @@ import static java.util.regex.Pattern.compile;
 
 class PersonBuilder extends ValidationProcess {
 
-    PersonBuilder(ObjectProvider provider, MaybeMonad monad) {
+    PersonBuilder(ObjectProvider provider, MonadOfProperties monad) {
         super(provider, monad);
     }
 
     Person build() {
         Person person = new Person();
 
-        addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddressCollection, collection -> {
+        addStep(Person.EMAIL_PROPERTY_TOKEN, PersonBuilder::validateEmailAddressCollection, collection -> {
             List<String> emailAddresses = new ArrayList<>();
             for (int i = 0; i < collection.length; i++) {
                 int j = i;
-                Property property = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY.getName(), j);
+                PropertyToken propertyToken = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY_TOKEN.getName(), j);
                 new ValidationProcess($ -> collection[j], monad)
-                        .addStep(property, PersonBuilder::validateEmailAddress, emailAddresses::add)
+                        .addStep(propertyToken, PersonBuilder::validateEmailAddress, emailAddresses::add)
                         .execute();
             }
             person.setEmailAddresses(emailAddresses.toArray(new String[0]));
         });
-        addStep(Person.ADDRESS_PROPERTY, PersonBuilder::validateAddress, person::setAddress);
+        addStep(Person.ADDRESS_PROPERTY_TOKEN, PersonBuilder::validateAddress, person::setAddress);
         execute();
 
         return person;
     }
 
-    private static Maybe<String[]> validateEmailAddressCollection(Object source, MaybeMonad monad) {
+    private static Property<String[]> validateEmailAddressCollection(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
@@ -49,7 +49,7 @@ class PersonBuilder extends ValidationProcess {
     }
 
     private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
-    private static Maybe<String> validateEmailAddress(Object source, MaybeMonad monad) {
+    private static Property<String> validateEmailAddress(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
@@ -60,7 +60,7 @@ class PersonBuilder extends ValidationProcess {
                 .registerFailureCode("format");
     }
 
-    private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
+    private static Property<Address> validateAddress(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")

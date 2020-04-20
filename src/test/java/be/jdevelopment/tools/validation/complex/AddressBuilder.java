@@ -1,8 +1,8 @@
 package be.jdevelopment.tools.validation.complex;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.maybe.MaybeMonad;
+import be.jdevelopment.tools.validation.maybe.Property;
+import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.Objects;
@@ -12,7 +12,7 @@ import static java.util.regex.Pattern.compile;
 
 class AddressBuilder extends ValidationProcess {
 
-    AddressBuilder(ObjectProvider provider, MaybeMonad monad) {
+    AddressBuilder(ObjectProvider provider, MonadOfProperties monad) {
         super(provider, monad);
     }
 
@@ -26,7 +26,7 @@ class AddressBuilder extends ValidationProcess {
         return address;
     }
 
-    private static Maybe<String> validateRequiredString(Object source, MaybeMonad monad) {
+    private static Property<String> validateRequiredString(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
@@ -36,7 +36,7 @@ class AddressBuilder extends ValidationProcess {
     }
 
     private static Pattern POSTAL_CODE_PATTERN = compile("^[0-9]+$");
-    private static Maybe<String> validatePostalCode(Object source, MaybeMonad monad) {
+    private static Property<String> validatePostalCode(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")

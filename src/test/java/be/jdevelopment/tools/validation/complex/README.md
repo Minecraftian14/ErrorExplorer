@@ -38,7 +38,7 @@ As in the simple case, we define basic validators. The validators on
 `Address` are simple and follow the same scheme than the ones in the
 simple validation example.
 
-On `Person` we define a validator for the `ADDRESS_PROPERTY` property:
+On `Person` we define a validator for the `ADDRESS_PROPERTY` propertyToken:
 ```java
 private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
     return monad.of(source)
@@ -51,7 +51,7 @@ private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
 }
 ```
 We expect that the `ObjectProvider` for `Person` can provide another
-`ObjectProvider` for the addres property. On the sub object providder,
+`ObjectProvider` for the addres propertyToken. On the sub object providder,
 we apply the regular build of an address.
 
 In order to validate the email address collection, we first define a
@@ -80,9 +80,9 @@ addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddressCollection, co
     List<String> emailAddresses = new ArrayList<>();
     for (int i = 0; i < collection.length; i++) {
         int j = i;
-        Property property = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY.getName(), j);
+        Property propertyToken = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY.getName(), j);
         new ValidationProcess($ -> collection[j], failureBuilder)
-                .addStep(property, PersonBuilder::validateEmailAddress, emailAddresses::add)
+                .addStep(propertyToken, PersonBuilder::validateEmailAddress, emailAddresses::add)
                 .execute();
     }
     person.setEmailAddresses(emailAddresses.toArray(new String[0]));

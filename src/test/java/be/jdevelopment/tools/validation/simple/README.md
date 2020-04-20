@@ -13,7 +13,7 @@ class Person {
 }
 ```
 The only field to extract from the user inputs is the email address
-property, whose name is `emailAddress`. We have defined a setter method to
+propertyToken, whose name is `emailAddress`. We have defined a setter method to
 allow the build of a `Person`. (Getter could also be set, but this is out of
 scope.)
 

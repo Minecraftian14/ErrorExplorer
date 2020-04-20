@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.complex;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
-import be.jdevelopment.tools.validation.error.VMonad;
+import be.jdevelopment.tools.validation.error.MonadFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -38,7 +38,7 @@ public class SubObjectValidationTest {
         JsonNode node = new ObjectMapper().readTree(json);
         ObjectProvider provider = fromJsonNode(node);
 
-        Person person = new PersonBuilder(provider, VMonad.on(failureBuilder)).build();
+        Person person = new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
 
         assertTrue(failures.isEmpty());
         assertEquals(2, person.emailAddresses.length);
@@ -55,7 +55,7 @@ public class SubObjectValidationTest {
         JsonNode node = new ObjectMapper().readTree(json);
         ObjectProvider provider = fromJsonNode(node);
 
-        new PersonBuilder(provider, VMonad.on(failureBuilder)).build();
+        new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
 
         assertEquals(2, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.required"::equals));
@@ -69,7 +69,7 @@ public class SubObjectValidationTest {
         JsonNode node = new ObjectMapper().readTree(json);
         ObjectProvider provider = fromJsonNode(node);
 
-        new PersonBuilder(provider, VMonad.on(failureBuilder)).build();
+        new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
 
         assertEquals(2, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.postalCode.format"::equals));
