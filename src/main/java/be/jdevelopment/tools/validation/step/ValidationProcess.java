@@ -5,9 +5,10 @@ import be.jdevelopment.tools.validation.PropertyToken;
 import be.jdevelopment.tools.validation.error.MonadFactory;
 import be.jdevelopment.tools.validation.maybe.Property;
 import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
+import javafx.beans.property.SimpleBooleanProperty;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class ValidationProcess {
 
@@ -24,13 +25,35 @@ public class ValidationProcess {
         return MonadFactory.on(errorCode -> baseMonad.fail().registerFailureCode(String.format("%s.%s", propertyToken.getName(), errorCode)));
     }
 
-    public <T> ValidationProcess addStep(PropertyToken propertyToken, ValidationRule<T> rule, Callback<T> andThen) {
+    public <T> ValidationProcess addStep(PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen) {
         ValidationCommand<T> cmd = new ValidationCommand<>();
         cmd.rule = rule;
         cmd.callback = andThen;
 
         scriptMapping.put(propertyToken, cmd);
         return this;
+    }
+
+    public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken, ValidationRule<? extends Iterator<T>> onCollectionRule,
+                                                       ValidationRule<U> onSingleRule, Callback<? super Iterator<U>> andThen) {
+        Callback<Iterator<T>> onValidCollectionCallback = collection -> {
+            List<U> collected = new ArrayList<>();
+
+            int i = 0;
+            SimpleBox<U> box = new SimpleBox<>();
+            while (collection.hasNext()) {
+                PropertyToken property = new DynamicCollectionProperty(i, propertyToken);
+                Object resource = collection.next();
+                box.set(null);
+                new ValidationProcess($ -> resource, monad).addStep(property, onSingleRule, box::set).execute();
+                if (box.value != null) collected.add(box.value);
+                i++;
+            }
+
+            andThen.call(collected.iterator());
+        };
+
+        return this.addStep(propertyToken, onCollectionRule, onValidCollectionCallback);
     }
 
     public void execute() {
@@ -58,8 +81,8 @@ public class ValidationProcess {
     }
 
     private static class ValidationCommand<T> implements ValidationRule<T> {
-        ValidationRule<T> rule;
-        Callback<T> callback;
+        ValidationRule<? extends T> rule;
+        Callback<? super T> callback;
 
         @Override
         public Property<T> validate(Object source, MonadOfProperties b) {

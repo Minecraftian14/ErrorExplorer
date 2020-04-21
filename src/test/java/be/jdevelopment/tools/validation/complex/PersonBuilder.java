@@ -6,9 +6,7 @@ import be.jdevelopment.tools.validation.maybe.Property;
 import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.compile;
@@ -22,30 +20,25 @@ class PersonBuilder extends ValidationProcess {
     Person build() {
         Person person = new Person();
 
-        addStep(Person.PersonProperty.EMAIL, PersonBuilder::validateEmailAddressCollection, collection -> {
-            List<String> emailAddresses = new ArrayList<>();
-            for (int i = 0; i < collection.length; i++) {
-                int j = i;
-                PropertyToken propertyToken = () -> String.format("%s[%d]", Person.PersonProperty.EMAIL.getName(), j);
-                new ValidationProcess($ -> collection[j], monad)
-                        .addStep(propertyToken, PersonBuilder::validateEmailAddress, emailAddresses::add)
-                        .execute();
-            }
-            person.setEmailAddresses(emailAddresses.toArray(new String[0]));
-        });
+        addCollectionSteps(Person.PersonProperty.EMAIL,
+                PersonBuilder::validateEmailAddressCollection,
+                PersonBuilder::validateEmailAddress,
+                person::setEmailAddresses);
         addStep(Person.PersonProperty.ADDRESS, PersonBuilder::validateAddress, person::setAddress);
         execute();
 
         return person;
     }
 
-    private static Property<String[]> validateEmailAddressCollection(Object source, MonadOfProperties monad) {
+    private static Property<Iterator<String>> validateEmailAddressCollection(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
                 .filter(String[].class::isInstance)
                 .registerFailureCode("type")
-                .map(String[].class::cast);
+                .map(String[].class::cast)
+                .map(Arrays::asList)
+                .map(List::iterator);
     }
 
     private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
