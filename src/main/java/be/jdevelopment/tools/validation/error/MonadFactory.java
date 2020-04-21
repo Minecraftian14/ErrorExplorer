@@ -76,6 +76,8 @@ public final class MonadFactory {
         @Override public final Property<T> registerFailureCode(String code) {
             return this;
         }
+
+        @Override public final boolean isFailure() { return false; }
     }
 
     static class Failure<T> extends _Property<T> {
@@ -108,6 +110,8 @@ public final class MonadFactory {
             }
             return this;
         }
+
+        @Override public final boolean isFailure() { return true; }
     }
 
 }

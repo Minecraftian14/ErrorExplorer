@@ -26,4 +26,6 @@ public interface Property<T> {
 
     Property<T> registerFailureCode(String code);
 
+    boolean isFailure();
+
 }
