@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
 class Person {
-    static enum PersonProperty implements PropertyToken {
+    enum PersonProperty implements PropertyToken {
         EMAIL("emailAddresses"),
         ADDRESS("address");
 

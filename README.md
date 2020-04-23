@@ -39,11 +39,12 @@ objects at the same time, with as less effort as possible.
 Validation errors are encoded in a `Failure` object.
 A `Failure` has a code, which correspond to the reason why the failure occurred.
 
-### The `Maybe` monad
+### The `Property` monad
 
 A user input may be, or may not be. This phenomenon is enclosed within
-the `Maybe<T>` monad.
+a `Property<T>`.
 
+Properties form a monad, the `MonadOfProperty`.
 This monad offers very few computation facilities. Its aim is to enclose
 user input, and validate them via the `filter` method. Once an input validated,
 the monad allow you to `flatMap` or `map` it on another type, which
@@ -59,13 +60,13 @@ The user inputs are assumed to be encoded as an `ObjectProvider` instance.
 (See unit tests for an example of `ObjectProvider` construction based on
 Json.)
 
-The `ObjectProvider` provides an object on the basis of a `Property`:
+The `ObjectProvider` provides an object on the basis of a `PropertyToken`:
 ```
 interface ObjectProvider {
    Object provideFor(Property propertyToken);
 }
 ```
-A `Property` is as elementary as this:
+A `PropertyToken` is as elementary as this:
 ```
 interface Property {
    String getName();
@@ -83,20 +84,17 @@ need to give it its execution context: an `ObjectProvider` and a `FailureBuilder
 Once a `ValidationProcess` defined,
 you can add it *validation steps*:
 ```
-addStep( Property , Object -> Maybe<T> , T -> void );
+addStep( PropertyToken , Object -> Property<T> , T -> void );
 ```
 The first argument is the propertyToken that will be validated.
 
 The second argument is the extraction process. During this stage, you'll
-map the user input to some `Maybe` resource, and advertize the
+map the user input to some `Property` resource, and advertize the
 `FailureBuilder` about failures using the `registerFailureCode` method of
-the `Maybe` interface.
+the `Property` interface.
 
 The third parameter is a call back on what should be done with the *valide*
 input. It will not be executed if the input is invalid.
-
-**Note:** Adding sets is a stack operation. To execute the step, you'll need to
-call the `execute` method.
 
 ## After words
 

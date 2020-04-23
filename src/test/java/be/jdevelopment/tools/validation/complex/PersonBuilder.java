@@ -1,7 +1,6 @@
 package be.jdevelopment.tools.validation.complex;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.PropertyToken;
 import be.jdevelopment.tools.validation.maybe.Property;
 import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
