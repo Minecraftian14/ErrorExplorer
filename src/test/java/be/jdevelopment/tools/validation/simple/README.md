@@ -6,14 +6,23 @@ The target class we want to construct in this test is a simple
 version of the `Person` class:
 ```java
 class Person {
-    static final Property EMAIL_PROPERTY = () -> "emailAddress";
+    enum PersonProperty implements PropertyToken {
+        EMAIL("emailAddress");
+
+        final String name;
+        PersonProperty(String name) {
+            this.name = name;
+        }
+
+        @Override public String getName() { return name; }
+    }
 
     String emailAddress;
     void setEmailAddress(String arg) { emailAddress = arg; }
 }
 ```
 The only field to extract from the user inputs is the email address
-property, whose name is `emailAddress`. We have defined a setter method to
+propertyToken, whose name is `emailAddress`. We have defined a setter method to
 allow the build of a `Person`. (Getter could also be set, but this is out of
 scope.)
 
@@ -35,9 +44,10 @@ private static Maybe<String> validateEmailAddress(Object source, MaybeMonad mona
             .registerFailureCode("format");
 }
 ```
-We first define a monad structure to use the `Maybe` algebra,
-and we directly wrap the `source` is a `Maybe` object.
-(Checkout the code of `VMonad` if you're interested in implementation details.)
+We first define a monad structure to use the `Property` algebra,
+and we directly wrap the `source` in a `Property` object.
+(Checkout the code of `MonadOfProperty` if you're interested
+in implementation details.)
 
 The remaining part of the code is a validation process.
 Each time we encounter an error, we register the error code. Registration is
@@ -46,16 +56,17 @@ implicitly done within the `FailureBuilder`.
 ## Validation process
 
 The whole validation process for a `Person` is expressed by extending the
-`ValidationProcess` class. This is the `PersonBuilder` class.
+`ValidationProcess` class. This is the `PersonBuilder` class. You can also
+proceed by object composition, as the `ValidationProcess` is not abstract.
 
 The `ValidationProcess` provides basic methods to build a `Person`, so
 we just need to write the whole build method (which is independent of the
-`ValidationProcess` structure, so no override is done here):
+`ValidationProcess` structure):
 ```java
 Person build() throws InvalidUserInputException {
     Person person = new Person();
     HashSet<Failure> failures = new HashSet<>();
-    this.monad = VMonad.on(errorCode -> failures.add(new FailureImpl(errorCode)));
+    this.monad = MonadFactory.on(errorCode -> failures.add(new FailureImpl(errorCode)));
 
     addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddress, person::setEmailAddress)
             .execute();
@@ -67,6 +78,9 @@ Person build() throws InvalidUserInputException {
     return person;
 }
 ```
+In the above example, we have managed ourselves the failures
+and in case of any problem, we return an `InvalidUserInputException`
+(checked exception) containing the list of all errors that were encountered.
 
 ## Example
 

@@ -1,12 +1,11 @@
 package be.jdevelopment.tools.validation.simple;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.annotations.UnsafeProvider;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.InvalidUserInputException;
-import be.jdevelopment.tools.validation.error.VMonad;
-import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.maybe.MaybeMonad;
+import be.jdevelopment.tools.validation.error.MonadFactory;
+import be.jdevelopment.tools.validation.maybe.Property;
+import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.HashSet;
@@ -17,7 +16,7 @@ import static java.util.regex.Pattern.compile;
 
 class PersonBuilder extends ValidationProcess {
 
-    PersonBuilder(@UnsafeProvider(expect = Person.class) ObjectProvider provider) {
+    PersonBuilder(ObjectProvider provider) {
         super(provider, null);
     }
 
@@ -30,9 +29,9 @@ class PersonBuilder extends ValidationProcess {
     Person build() throws InvalidUserInputException {
         Person person = new Person();
         HashSet<Failure> failures = new HashSet<>();
-        this.monad = VMonad.on(errorCode -> failures.add(new FailureImpl(errorCode)));
+        this.monad = MonadFactory.on(errorCode -> failures.add(new FailureImpl(errorCode)));
 
-        addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddress, person::setEmailAddress)
+        addStep(Person.PersonProperty.EMAIL, PersonBuilder::validateEmailAddress, person::setEmailAddress)
                 .execute();
 
         if (!failures.isEmpty()) {
@@ -43,7 +42,7 @@ class PersonBuilder extends ValidationProcess {
     }
 
     private static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
-    private static Maybe<String> validateEmailAddress(Object source, MaybeMonad monad) {
+    private static Property<String> validateEmailAddress(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")

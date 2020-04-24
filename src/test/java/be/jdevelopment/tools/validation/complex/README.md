@@ -6,12 +6,28 @@ The target class we want to construct in this test is a more complex
 version of the `Person` class:
 ```java
 class Person {
-    static final Property EMAIL_PROPERTY = () -> "emailAddresses";
-    static final Property ADDRESS_PROPERTY = () -> "address";
+    enum PersonProperty implements PropertyToken {
+        EMAIL("emailAddresses"),
+        DEFAULT_EMAIL("defaultEmail"),
+        ADDRESS("address");
 
+        final String name;
+        PersonProperty(String name) {
+            this.name = name;
+        }
+
+        @Override public String getName() { return name; }
+    }
+
+    int defaultEmailIndex;
     String[] emailAddresses;
-    void setEmailAddresses(String[] arg) {
-        emailAddresses = arg;
+    void setEmailAddresses(Iterator<String> arg) {
+        emailAddresses = StreamSupport
+                .stream(((Iterable<String>) () -> arg).spliterator(), false)
+                .toArray(String[]::new);
+    }
+    void setDefaultEmailIndex(int index) {
+        defaultEmailIndex = index;
     }
 
     Address address;
@@ -21,8 +37,17 @@ class Person {
 The address structure is driven by the following class:
 ```java
 class Address {
-    static final Property POSTAL_CODE = () -> "postalCode";
-    static final Property STREET = () -> "street";
+    enum AddressProperty implements PropertyToken {
+        POSTAL_CODE("postalCode"),
+        STREET("street");
+
+        final String name;
+        AddressProperty(String name) {
+            this.name = name;
+        }
+
+        @Override public String getName() { return name; }
+    }
 
     String street, postalCode;
     void setStreet(String arg) { street = arg; }
@@ -38,9 +63,9 @@ As in the simple case, we define basic validators. The validators on
 `Address` are simple and follow the same scheme than the ones in the
 simple validation example.
 
-On `Person` we define a validator for the `ADDRESS_PROPERTY` property:
+On `Person` we define a validator for the `ADDRESS_PROPERTY` propertyToken:
 ```java
-private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
+private static Property<Address> validateAddress(Object source, MonadOfProperty monad) {
     return monad.of(source)
             .filter(Objects::nonNull)
             .registerFailureCode("required")
@@ -51,19 +76,21 @@ private static Maybe<Address> validateAddress(Object source, MaybeMonad monad) {
 }
 ```
 We expect that the `ObjectProvider` for `Person` can provide another
-`ObjectProvider` for the addres property. On the sub object providder,
+`ObjectProvider` for the addres propertyToken. On the sub object providder,
 we apply the regular build of an address.
 
 In order to validate the email address collection, we first define a
 validator on the collection as a whole:
 ```java
-private static Maybe<String[]> validateEmailAddressCollection(Object source, MaybeMonad monad) {
+private static Property<Iterator<String>> validateEmailAddressCollection(Object source, MonadOfProperties monad) {
     return monad.of(source)
             .filter(Objects::nonNull)
             .registerFailureCode("required")
             .filter(String[].class::isInstance)
             .registerFailureCode("type")
-            .map(String[].class::cast);
+            .map(String[].class::cast)
+            .map(Arrays::asList)
+            .map(List::iterator);
 }
 ```
 In this example, we expect that the object provided for the `EMAIL_ADDRESSES`
@@ -72,52 +99,40 @@ is an array of String.
 ## Validation process for `Person`
 
 The whole validation process for person goes as follow:
-first we validate the email collection as a whole, and in the callback,
-we are going to create validation processes for each
-entry of the array.
+first we validate the email collection as a whole, and then each collection entry.
+This is perform by using the `addCollectionSteps` method:
 ```java
-addStep(Person.EMAIL_PROPERTY, PersonBuilder::validateEmailAddressCollection, collection -> {
-    List<String> emailAddresses = new ArrayList<>();
-    for (int i = 0; i < collection.length; i++) {
-        int j = i;
-        Property property = () -> String.format("%s[%d]", Person.EMAIL_PROPERTY.getName(), j);
-        new ValidationProcess($ -> collection[j], failureBuilder)
-                .addStep(property, PersonBuilder::validateEmailAddress, emailAddresses::add)
-                .execute();
-    }
-    person.setEmailAddresses(emailAddresses.toArray(new String[0]));
-});
+addCollectionSteps(Person.PersonProperty.EMAIL,
+        PersonBuilder::validateEmailAddressCollection,
+        PersonBuilder::validateEmailAddress,
+        person::setEmailAddresses);
 ```
 Next we validate the address field using our validator function:
 ```java
 addStep(Person.ADDRESS_PROPERTY, PersonBuilder::validateAddress, person::setAddress);
 ```
 
-### Why so much boiler plate for a collection?
+### Validation of `defaultEmail`
 
-Basically because the error code logic is not based on the object hierarchy,
-but based on constraints. The tree of constraints in an object follows the
-field hierarchy, and each leaf is represents a invalid constraint.
+The default email as provided by the `ObjectProvider` is assumed to be 
+a repetion of one of the email addresses given in the previously validated collection.
 
-On a collection, there are two possible perspectives one can adopt:
-either entry 0 of the collection is a constraint on the collection;
-or the entry 0 on the collection is a constraint on the collection container.
-
-The first position would naturally yield error code of the form
-```json
-collectionContainer.collection.0.errorCode
+In order to take benefit from validated data, we define a custom validator
+at runtime:
+```java
+ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
+        .filter(Objects::nonNull)
+        .flatMap($ -> monad.of($).filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(Arrays.asList(person.emailAddresses)::indexOf)
+                .filter(x -> x > -1)
+                .registerFailureCode("notfound")
+        );
 ```
-Although it may be ok, we have prefered (in this example at least) to see
-a collection entry as a constraint on the collection container:
-it was stored on a collection because we only know at runtime how many
-constraints of type `collection` exist on the container.
-
-From this perspective, it's more natural to print an error code of the form
-```json
-collectionContainer.collection[0].errorCode
+With this validator at hand, we are in position to validate the mock:
+```java
+addStep(Person.PersonProperty.DEFAULT_EMAIL, validateDefault, person::setDefaultEmailIndex);
 ```
-as the real constraint is `collection[0]`. Never mind! Prefer the first
-form if you are puzzled with this.
 
 ## Example
 
@@ -125,6 +140,7 @@ A mock of the form
 ```json
 {
   "emailAddresses": ["not_a_mail_address"],
+  "defaultEmail": "notinthelist",
   "address": {
     "postalCode": "woops",
     "street": "This is ok"
@@ -133,5 +149,5 @@ A mock of the form
 ```
 will give an error collection of the form
 ```
-[ "emailAddresses[0].format" , "address.postalCode.format" ]
+[ "emailAddresses[0].format" , "address.postalCode.format", "defaultEmail.notfound" ]
 ```

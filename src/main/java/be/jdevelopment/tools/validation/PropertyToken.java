@@ -1,6 +1,6 @@
 package be.jdevelopment.tools.validation;
 
-public interface Property {
+public interface PropertyToken {
 
     String getName();
 

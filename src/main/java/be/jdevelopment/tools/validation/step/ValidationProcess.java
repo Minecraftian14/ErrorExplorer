@@ -1,55 +1,77 @@
 package be.jdevelopment.tools.validation.step;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
-import be.jdevelopment.tools.validation.Property;
-import be.jdevelopment.tools.validation.error.VMonad;
-import be.jdevelopment.tools.validation.maybe.Maybe;
-import be.jdevelopment.tools.validation.maybe.MaybeMonad;
+import be.jdevelopment.tools.validation.PropertyToken;
+import be.jdevelopment.tools.validation.error.MonadFactory;
+import be.jdevelopment.tools.validation.maybe.Property;
+import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
+import javafx.beans.property.SimpleBooleanProperty;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class ValidationProcess {
 
     private final ObjectProvider provider;
-    protected MaybeMonad monad;
-    private Map<Property, ValidationRule> scriptMapping = new HashMap<>();
+    protected MonadOfProperties monad;
+    private Map<PropertyToken, ValidationRule> scriptMapping = new HashMap<>();
 
-    public ValidationProcess(ObjectProvider provider, MaybeMonad monad) {
+    public ValidationProcess(ObjectProvider provider, MonadOfProperties monad) {
         this.monad = monad;
         this.provider = provider;
     }
 
-    private static MaybeMonad deriveFromParent(Property property, MaybeMonad baseMonad) {
-        return VMonad.on(errorCode -> baseMonad.fail().registerFailureCode(String.format("%s.%s", property.getName(), errorCode)));
+    private static MonadOfProperties deriveFromParent(PropertyToken propertyToken, MonadOfProperties baseMonad) {
+        return MonadFactory.on(errorCode -> baseMonad.fail().registerFailureCode(String.format("%s.%s", propertyToken.getName(), errorCode)));
     }
 
-    public <T> ValidationProcess addStep(Property property, ValidationRule<T> rule, Callback<T> andThen) {
-        ValidationCommand<T> cmd = new ValidationCommand<>();
-        cmd.rule = rule;
-        cmd.callback = andThen;
+    public <T> ValidationProcess addStep(PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen) {
+        MonadOfProperties subMonad = deriveFromParent(propertyToken, monad);
+        Object source = provider.provideFor(propertyToken);
+        rule.validate(source, subMonad).map($ -> { andThen.call($); return null; });
 
-        scriptMapping.put(property, cmd);
         return this;
     }
 
+    public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken, ValidationRule<? extends Iterator<T>> onCollectionRule,
+                                                       ValidationRule<U> onSingleRule, Callback<? super Iterator<U>> andThen) {
+        Callback<Iterator<T>> onValidCollectionCallback = collection -> {
+            List<U> collected = new ArrayList<>();
+
+            int i = 0;
+            SimpleBox<U> box = new SimpleBox<>();
+            while (collection.hasNext()) {
+                PropertyToken property = new DynamicCollectionProperty(i, propertyToken);
+                Object resource = collection.next();
+                box.set(null);
+                new ValidationProcess($ -> resource, monad).addStep(property, onSingleRule, box::set).execute();
+                if (box.value != null) collected.add(box.value);
+                i++;
+            }
+
+            andThen.call(collected.iterator());
+        };
+
+        return this.addStep(propertyToken, onCollectionRule, onValidCollectionCallback);
+    }
+
     public void execute() {
-        MaybeMonad subMonad;
-        Property property;
+        MonadOfProperties subMonad;
+        PropertyToken propertyToken;
         ValidationRule rule;
         Object source;
-        for (Map.Entry<Property, ValidationRule> entry : scriptMapping.entrySet()) {
-            property = entry.getKey();
+        for (Map.Entry<PropertyToken, ValidationRule> entry : scriptMapping.entrySet()) {
+            propertyToken = entry.getKey();
             rule = entry.getValue();
-            subMonad = deriveFromParent(property, monad);
-            source = provider.provideFor(property);
+            subMonad = deriveFromParent(propertyToken, monad);
+            source = provider.provideFor(propertyToken);
             rule.validate(source, subMonad);
         }
     }
 
     @FunctionalInterface
     public interface ValidationRule<T> {
-        Maybe<T> validate(Object source, MaybeMonad workingMonad);
+        Property<T> validate(Object source, MonadOfProperties workingMonad);
     }
 
     @FunctionalInterface
@@ -58,11 +80,11 @@ public class ValidationProcess {
     }
 
     private static class ValidationCommand<T> implements ValidationRule<T> {
-        ValidationRule<T> rule;
-        Callback<T> callback;
+        ValidationRule<? extends T> rule;
+        Callback<? super T> callback;
 
         @Override
-        public Maybe<T> validate(Object source, MaybeMonad b) {
+        public Property<T> validate(Object source, MonadOfProperties b) {
             return rule.validate(source, b).map(this::peek);
         }
 
