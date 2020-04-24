@@ -34,7 +34,7 @@ public class SubObjectValidationTest {
     @Test
     public void should_validateProvider_givenValid() throws Exception {
 
-        String json = "{\"emailAddresses\":[\"hello@world\", \"a@b\"],\"address\":{\"postalCode\":\"5030\",\"street\":\"second street\"}}";
+        String json = "{\"emailAddresses\":[\"hello@world\", \"a@b\"],\"defaultEmail\":\"hello@world\",\"address\":{\"postalCode\":\"5030\",\"street\":\"second street\"}}";
         JsonNode node = new ObjectMapper().readTree(json);
         ObjectProvider provider = fromJsonNode(node);
 
@@ -46,6 +46,7 @@ public class SubObjectValidationTest {
         assertEquals("a@b", person.emailAddresses[1]);
         assertEquals("5030", person.address.postalCode);
         assertEquals("second street", person.address.street);
+        assertEquals(0, person.defaultEmailIndex);
     }
 
     @Test
@@ -65,15 +66,16 @@ public class SubObjectValidationTest {
     @Test
     public void should_invalidateProvider_givenInvalidAddressInfo() throws Exception {
 
-        String json = "{\"emailAddresses\":[\"hello@world\", \"a@b\"],\"address\":{\"postalCode\":\"not_ok\"}}";
+        String json = "{\"emailAddresses\":[\"hello@world\", \"a@b\"], \"defaultEmail\":\"nothing\",\"address\":{\"postalCode\":\"not_ok\"}}";
         JsonNode node = new ObjectMapper().readTree(json);
         ObjectProvider provider = fromJsonNode(node);
 
         new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
 
-        assertEquals(2, failures.size());
+        assertEquals(3, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.postalCode.format"::equals));
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.street.required"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("defaultEmail.notfound"::equals));
     }
 
     private static ObjectProvider fromJsonNode(JsonNode node) {

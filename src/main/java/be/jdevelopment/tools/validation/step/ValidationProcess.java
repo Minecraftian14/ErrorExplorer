@@ -26,11 +26,10 @@ public class ValidationProcess {
     }
 
     public <T> ValidationProcess addStep(PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen) {
-        ValidationCommand<T> cmd = new ValidationCommand<>();
-        cmd.rule = rule;
-        cmd.callback = andThen;
+        MonadOfProperties subMonad = deriveFromParent(propertyToken, monad);
+        Object source = provider.provideFor(propertyToken);
+        rule.validate(source, subMonad).map($ -> { andThen.call($); return null; });
 
-        scriptMapping.put(propertyToken, cmd);
         return this;
     }
 

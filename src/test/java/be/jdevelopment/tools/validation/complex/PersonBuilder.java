@@ -24,6 +24,15 @@ class PersonBuilder extends ValidationProcess {
                 PersonBuilder::validateEmailAddress,
                 person::setEmailAddresses);
         addStep(Person.PersonProperty.ADDRESS, PersonBuilder::validateAddress, person::setAddress);
+        ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
+                .filter(Objects::nonNull)
+                .flatMap($ -> monad.of($).filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .map(Arrays.asList(person.emailAddresses)::indexOf)
+                        .filter(x -> x > -1)
+                        .registerFailureCode("notfound")
+                );
+        addStep(Person.PersonProperty.DEFAULT_EMAIL, validateDefault, person::setDefaultEmailIndex);
         execute();
 
         return person;

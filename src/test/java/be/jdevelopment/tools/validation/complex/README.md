@@ -8,6 +8,7 @@ version of the `Person` class:
 class Person {
     enum PersonProperty implements PropertyToken {
         EMAIL("emailAddresses"),
+        DEFAULT_EMAIL("defaultEmail"),
         ADDRESS("address");
 
         final String name;
@@ -18,11 +19,15 @@ class Person {
         @Override public String getName() { return name; }
     }
 
+    int defaultEmailIndex;
     String[] emailAddresses;
     void setEmailAddresses(Iterator<String> arg) {
         emailAddresses = StreamSupport
                 .stream(((Iterable<String>) () -> arg).spliterator(), false)
                 .toArray(String[]::new);
+    }
+    void setDefaultEmailIndex(int index) {
+        defaultEmailIndex = index;
     }
 
     Address address;
@@ -107,12 +112,35 @@ Next we validate the address field using our validator function:
 addStep(Person.ADDRESS_PROPERTY, PersonBuilder::validateAddress, person::setAddress);
 ```
 
+### Validation of `defaultEmail`
+
+The default email as provided by the `ObjectProvider` is assumed to be 
+a repetion of one of the email addresses given in the previously validated collection.
+
+In order to take benefit from validated data, we define a custom validator
+at runtime:
+```java
+ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
+        .filter(Objects::nonNull)
+        .flatMap($ -> monad.of($).filter(String.class::isInstance)
+                .map(String.class::cast)
+                .map(Arrays.asList(person.emailAddresses)::indexOf)
+                .filter(x -> x > -1)
+                .registerFailureCode("notfound")
+        );
+```
+With this validator at hand, we are in position to validate the mock:
+```java
+addStep(Person.PersonProperty.DEFAULT_EMAIL, validateDefault, person::setDefaultEmailIndex);
+```
+
 ## Example
 
 A mock of the form
 ```json
 {
   "emailAddresses": ["not_a_mail_address"],
+  "defaultEmail": "notinthelist",
   "address": {
     "postalCode": "woops",
     "street": "This is ok"
@@ -121,5 +149,5 @@ A mock of the form
 ```
 will give an error collection of the form
 ```
-[ "emailAddresses[0].format" , "address.postalCode.format" ]
+[ "emailAddresses[0].format" , "address.postalCode.format", "defaultEmail.notfound" ]
 ```
