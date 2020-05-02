@@ -33,7 +33,6 @@ class PersonBuilder extends ValidationProcess {
                         .registerFailureCode("notfound")
                 );
         addStep(Person.PersonProperty.DEFAULT_EMAIL, validateDefault, person::setDefaultEmailIndex);
-        execute();
 
         return person;
     }

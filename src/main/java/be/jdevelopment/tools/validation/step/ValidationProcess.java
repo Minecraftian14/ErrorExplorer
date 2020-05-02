@@ -44,7 +44,7 @@ public class ValidationProcess {
                 PropertyToken property = new DynamicCollectionProperty(i, propertyToken);
                 Object resource = collection.next();
                 box.set(null);
-                new ValidationProcess($ -> resource, monad).addStep(property, onSingleRule, box::set).execute();
+                new ValidationProcess($ -> resource, monad).addStep(property, onSingleRule, box::set);
                 if (box.value != null) collected.add(box.value);
                 i++;
             }
@@ -53,20 +53,6 @@ public class ValidationProcess {
         };
 
         return this.addStep(propertyToken, onCollectionRule, onValidCollectionCallback);
-    }
-
-    public void execute() {
-        MonadOfProperties subMonad;
-        PropertyToken propertyToken;
-        ValidationRule rule;
-        Object source;
-        for (Map.Entry<PropertyToken, ValidationRule> entry : scriptMapping.entrySet()) {
-            propertyToken = entry.getKey();
-            rule = entry.getValue();
-            subMonad = deriveFromParent(propertyToken, monad);
-            source = provider.provideFor(propertyToken);
-            rule.validate(source, subMonad);
-        }
     }
 
     @FunctionalInterface

@@ -31,8 +31,7 @@ class PersonBuilder extends ValidationProcess {
         HashSet<Failure> failures = new HashSet<>();
         this.monad = MonadFactory.on(errorCode -> failures.add(new FailureImpl(errorCode)));
 
-        addStep(Person.PersonProperty.EMAIL, PersonBuilder::validateEmailAddress, person::setEmailAddress)
-                .execute();
+        addStep(Person.PersonProperty.EMAIL, PersonBuilder::validateEmailAddress, person::setEmailAddress);
 
         if (!failures.isEmpty()) {
             throw new InvalidUserInputException(failures);

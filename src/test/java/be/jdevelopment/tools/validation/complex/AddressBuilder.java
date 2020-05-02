@@ -21,7 +21,6 @@ class AddressBuilder extends ValidationProcess {
 
         addStep(Address.AddressProperty.STREET, AddressBuilder::validateRequiredString, address::setStreet);
         addStep(Address.AddressProperty.POSTAL_CODE, AddressBuilder::validatePostalCode, address::setPostalCode);
-        execute();
 
         return address;
     }
