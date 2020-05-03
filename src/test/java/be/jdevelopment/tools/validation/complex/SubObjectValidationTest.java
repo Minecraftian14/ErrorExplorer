@@ -12,7 +12,10 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashSet;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
@@ -33,44 +36,39 @@ public class SubObjectValidationTest {
 
     @Test
     public void should_validateProvider_givenValid() throws Exception {
+        var provider = fromJsonFile("complex/givenValidPerson.json");
 
-        String json = "{\"emailAddresses\":[\"hello@world\", \"a@b\"],\"defaultEmail\":\"hello@world\",\"address\":{\"postalCode\":\"5030\",\"street\":\"second street\"}}";
-        JsonNode node = new ObjectMapper().readTree(json);
-        ObjectProvider provider = fromJsonNode(node);
-
-        Person person = new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
+        Person person = new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Predicate<String> mailsContains = str -> person.getAllMails().stream().anyMatch(str::equals);
 
         assertTrue(failures.isEmpty());
-        assertEquals(2, person.emailAddresses.length);
-        assertEquals("hello@world", person.emailAddresses[0]);
-        assertEquals("a@b", person.emailAddresses[1]);
-        assertEquals("5030", person.address.postalCode);
-        assertEquals("second street", person.address.street);
-        assertEquals(0, person.defaultEmailIndex);
+        assertEquals(2, person.getAllMails().size());
+        assertTrue(mailsContains.test("hello@world"));
+        assertTrue(mailsContains.test("a@b"));
+        assertEquals("5030", person.address().postalCode());
+        assertEquals("second street", person.address().street());
+        assertEquals("hello@world", person.mails().getPreferredMail());
     }
 
     @Test
-    public void should_invalidateProvider_givenNoAddress() throws Exception {
+    public void should_invalidateProvider_givenNoAddressAndBadMail() throws Exception {
+        var provider = fromJsonFile("complex/givenNoAddressAndBadMailList.json");
 
-        String json = "{\"emailAddresses\":[\"hello@world\", \"not_a_mail_address\"]}";
-        JsonNode node = new ObjectMapper().readTree(json);
-        ObjectProvider provider = fromJsonNode(node);
+        new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
 
-        new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
-
-        assertEquals(2, failures.size());
+        assertEquals(5, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.required"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses.duplicates"::equals));
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[1].format"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[2].format"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[3].type"::equals));
     }
 
     @Test
     public void should_invalidateProvider_givenInvalidAddressInfo() throws Exception {
+        var provider = fromJsonFile("complex/givenInvalidAddressInfo.json");
 
-        String json = "{\"emailAddresses\":[\"hello@world\", \"a@b\"], \"defaultEmail\":\"nothing\",\"address\":{\"postalCode\":\"not_ok\"}}";
-        JsonNode node = new ObjectMapper().readTree(json);
-        ObjectProvider provider = fromJsonNode(node);
-
-        new PersonBuilder(provider, MonadFactory.on(failureBuilder)).build();
+        new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
 
         assertEquals(3, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.postalCode.format"::equals));
@@ -78,17 +76,35 @@ public class SubObjectValidationTest {
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("defaultEmail.notfound"::equals));
     }
 
+    private static ObjectProvider fromJsonFile(String path) throws IOException {
+        JsonNode node;
+        try(InputStream inputStream = SubObjectValidationTest.class.getClassLoader().getResourceAsStream(path)) {
+            node = new ObjectMapper().readTree(inputStream);
+        }
+        return fromJsonNode(node);
+    }
+
     private static ObjectProvider fromJsonNode(JsonNode node) {
         return property -> {
             JsonNode it = node.get(property.getName());
-            if (it instanceof TextNode) return it.asText();
-            if (it instanceof ArrayNode)
-                return StreamSupport.stream(((Iterable<JsonNode>) it::elements).spliterator(), false)
-                    .map(JsonNode::asText).toArray(String[]::new);
-            if (!(it instanceof ValueNode) && it != null) return fromJsonNode(it);
+            if (it == null) return null;
 
-            return it;
+            return mapping(it);
         };
+    }
+
+    private static Object mapping(JsonNode node) {
+        if (node.isNull()) return null;
+        if (node.isTextual()) return node.asText();
+        if (node.isInt()) return node.asInt();
+        if (node.isNumber()) return node.asDouble();
+        if (node.isArray())
+            return StreamSupport.stream(((Iterable<JsonNode>) node::elements).spliterator(), false)
+                    .map(SubObjectValidationTest::mapping)
+                    .toArray(Object[]::new);
+        if (!(node instanceof ValueNode)) return fromJsonNode(node);
+
+        return node;
     }
 
 }

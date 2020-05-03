@@ -3,18 +3,15 @@ package be.jdevelopment.tools.validation.step;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.PropertyToken;
 import be.jdevelopment.tools.validation.error.MonadFactory;
-import be.jdevelopment.tools.validation.maybe.Property;
-import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
-import javafx.beans.property.SimpleBooleanProperty;
+import be.jdevelopment.tools.validation.property.Property;
+import be.jdevelopment.tools.validation.property.MonadOfProperties;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class ValidationProcess {
 
     private final ObjectProvider provider;
     protected MonadOfProperties monad;
-    private Map<PropertyToken, ValidationRule> scriptMapping = new HashMap<>();
 
     public ValidationProcess(ObjectProvider provider, MonadOfProperties monad) {
         this.monad = monad;
@@ -33,9 +30,11 @@ public class ValidationProcess {
         return this;
     }
 
-    public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken, ValidationRule<? extends Iterator<T>> onCollectionRule,
-                                                       ValidationRule<U> onSingleRule, Callback<? super Iterator<U>> andThen) {
-        Callback<Iterator<T>> onValidCollectionCallback = collection -> {
+    public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken,
+                                                       ValidationRule<? extends Iterator<T>> onCollectionRule,
+                                                       ValidationRule<U> onSingleRule,
+                                                       Callback<? super Iterator<U>> andThen) {
+        Callback<Iterator<T>> onEachItem = collection -> {
             List<U> collected = new ArrayList<>();
 
             int i = 0;
@@ -52,7 +51,7 @@ public class ValidationProcess {
             andThen.call(collected.iterator());
         };
 
-        return this.addStep(propertyToken, onCollectionRule, onValidCollectionCallback);
+        return this.addStep(propertyToken, onCollectionRule, onEachItem);
     }
 
     @FunctionalInterface
@@ -63,21 +62,6 @@ public class ValidationProcess {
     @FunctionalInterface
     public interface Callback<T> {
         void call(T arg);
-    }
-
-    private static class ValidationCommand<T> implements ValidationRule<T> {
-        ValidationRule<? extends T> rule;
-        Callback<? super T> callback;
-
-        @Override
-        public Property<T> validate(Object source, MonadOfProperties b) {
-            return rule.validate(source, b).map(this::peek);
-        }
-
-        private T peek(T arg) {
-            callback.call(arg);
-            return arg;
-        }
     }
 
 }
