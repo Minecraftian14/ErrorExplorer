@@ -1,7 +1,7 @@
 package be.jdevelopment.tools.validation.error;
 
-import be.jdevelopment.tools.validation.maybe.Property;
-import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
+import be.jdevelopment.tools.validation.property.Property;
+import be.jdevelopment.tools.validation.property.MonadOfProperties;
 
 public final class MonadFactory {
 

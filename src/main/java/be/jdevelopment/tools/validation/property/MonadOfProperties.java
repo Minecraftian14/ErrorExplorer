@@ -1,4 +1,4 @@
-package be.jdevelopment.tools.validation.maybe;
+package be.jdevelopment.tools.validation.property;
 
 public interface MonadOfProperties {
 

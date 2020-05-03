@@ -4,8 +4,8 @@ import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.InvalidUserInputException;
 import be.jdevelopment.tools.validation.error.MonadFactory;
-import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
-import be.jdevelopment.tools.validation.maybe.Property;
+import be.jdevelopment.tools.validation.property.MonadOfProperties;
+import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.HashSet;
