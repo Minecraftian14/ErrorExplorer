@@ -5,16 +5,13 @@ import be.jdevelopment.tools.validation.PropertyToken;
 import be.jdevelopment.tools.validation.error.MonadFactory;
 import be.jdevelopment.tools.validation.maybe.Property;
 import be.jdevelopment.tools.validation.maybe.MonadOfProperties;
-import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class ValidationProcess {
 
     private final ObjectProvider provider;
     protected MonadOfProperties monad;
-    private Map<PropertyToken, ValidationRule> scriptMapping = new HashMap<>();
 
     public ValidationProcess(ObjectProvider provider, MonadOfProperties monad) {
         this.monad = monad;

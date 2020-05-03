@@ -1,0 +1,7 @@
+{
+  "emailAddresses": ["hello@world", "a@b"],
+  "defaultEmail": "nothing",
+  "address": {
+    "postalCode": "not_ok"
+  }
+}

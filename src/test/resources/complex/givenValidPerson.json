@@ -1,0 +1,8 @@
+{
+  "emailAddresses": ["hello@world", "a@b"],
+  "defaultEmail": "hello@world",
+  "address": {
+    "postalCode": "5030",
+    "street": "second street"
+  }
+}

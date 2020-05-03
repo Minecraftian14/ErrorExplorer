@@ -15,21 +15,21 @@ public class PersonValidationTest {
     public void should_validateProvider_givenBasicProperties() throws InvalidUserInputException {
 
         ObjectProvider provider = mock(ObjectProvider.class);
-        when(provider.provideFor(Person.PersonProperty.EMAIL)).thenReturn("hello.world@universe.com");
+        when(provider.provideFor(PersonProperty.EMAIL)).thenReturn("hello.world@universe.com");
 
-        Person pojo = new PersonBuilder(provider).build();
+        Person pojo = PersonFactory.create(provider);
 
-        assertEquals("hello.world@universe.com", pojo.emailAddress);
+        assertEquals("hello.world@universe.com", pojo.emailAddress());
     }
 
     @Test
     public void should_invalidateProvider_givenInvalidEmail() {
 
         ObjectProvider provider = mock(ObjectProvider.class);
-        when(provider.provideFor(Person.PersonProperty.EMAIL)).thenReturn("hello.world_at_universe.com");
+        when(provider.provideFor(PersonProperty.EMAIL)).thenReturn("hello.world_at_universe.com");
 
         try {
-            new PersonBuilder(provider).build();
+            PersonFactory.create(provider);
             fail("Should have thrown validation error");
         } catch(InvalidUserInputException e) {
             assertEquals(1, e.getFailures().size());
@@ -44,7 +44,7 @@ public class PersonValidationTest {
         ObjectProvider provider = mock(ObjectProvider.class);
 
         try {
-            new PersonBuilder(provider).build();
+            PersonFactory.create(provider);
             fail("Should have thrown validation error");
         } catch(InvalidUserInputException e) {
             assertEquals(1, e.getFailures().size());
@@ -56,10 +56,10 @@ public class PersonValidationTest {
     public void should_invalidateProvider_givenNumericInput() {
 
         ObjectProvider provider = mock(ObjectProvider.class);
-        when(provider.provideFor(Person.PersonProperty.EMAIL)).thenReturn(0);
+        when(provider.provideFor(PersonProperty.EMAIL)).thenReturn(0);
 
         try {
-            new PersonBuilder(provider).build();
+            PersonFactory.create(provider);
             fail("Should have thrown validation error");
         } catch(InvalidUserInputException e) {
             assertEquals(1, e.getFailures().size());

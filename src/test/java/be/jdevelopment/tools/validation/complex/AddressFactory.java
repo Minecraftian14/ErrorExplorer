@@ -10,19 +10,28 @@ import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.compile;
 
-class AddressBuilder extends ValidationProcess {
+class AddressFactory {
 
-    AddressBuilder(ObjectProvider provider, MonadOfProperties monad) {
-        super(provider, monad);
+    private final MonadOfProperties monad;
+    AddressFactory(MonadOfProperties monad) {
+        this.monad = monad;
     }
 
-    Address build() {
-        Address address = new Address();
+    private static class MutAddress {
+        String street, postalCode;
 
-        addStep(Address.AddressProperty.STREET, AddressBuilder::validateRequiredString, address::setStreet);
-        addStep(Address.AddressProperty.POSTAL_CODE, AddressBuilder::validatePostalCode, address::setPostalCode);
+        void setStreet(String arg) { street = arg; }
+        void setPostalCode(String arg) { postalCode = arg; }
+    }
 
-        return address;
+    Address create(ObjectProvider provider) {
+        MutAddress mutAddress = new MutAddress();
+
+        new ValidationProcess(provider, monad)
+            .addStep(AddressProperty.STREET, AddressFactory::validateRequiredString, mutAddress::setStreet)
+            .addStep(AddressProperty.POSTAL_CODE, AddressFactory::validatePostalCode, mutAddress::setPostalCode);
+
+        return new Address(mutAddress.street, mutAddress.postalCode);
     }
 
     private static Property<String> validateRequiredString(Object source, MonadOfProperties monad) {
@@ -34,7 +43,7 @@ class AddressBuilder extends ValidationProcess {
                 .map(String.class::cast);
     }
 
-    private static Pattern POSTAL_CODE_PATTERN = compile("^[0-9]+$");
+    private final static Pattern POSTAL_CODE_PATTERN = compile("^[0-9]+$");
     private static Property<String> validatePostalCode(Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
