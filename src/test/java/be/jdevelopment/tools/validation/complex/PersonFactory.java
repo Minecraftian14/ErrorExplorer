@@ -66,7 +66,7 @@ class PersonFactory {
 
         ValidationProcess.ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
                 .filter(Objects::nonNull)
-                .match((state, value) -> switch(state) {
+                .match((state, value) -> switch(state) { // default was provided, we validate
                     case SUCCESS -> monad.of(value).filter(String.class::isInstance)
                                 .map(String.class::cast)
                                 .flatMap($ -> monad.of(provider.provideFor(PersonProperty.EMAIL))
