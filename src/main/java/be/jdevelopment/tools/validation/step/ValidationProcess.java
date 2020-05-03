@@ -62,19 +62,4 @@ public class ValidationProcess {
         void call(T arg);
     }
 
-    private static class ValidationCommand<T> implements ValidationRule<T> {
-        ValidationRule<? extends T> rule;
-        Callback<? super T> callback;
-
-        @Override
-        public Property<T> validate(Object source, MonadOfProperties b) {
-            return rule.validate(source, b).map(this::peek);
-        }
-
-        private T peek(T arg) {
-            callback.call(arg);
-            return arg;
-        }
-    }
-
 }

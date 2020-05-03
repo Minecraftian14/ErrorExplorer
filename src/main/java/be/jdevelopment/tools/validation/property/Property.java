@@ -26,6 +26,14 @@ public interface Property<T> {
 
     Property<T> registerFailureCode(String code);
 
+    /** Failure of Success discrimination */
+
     boolean isFailure();
+
+    @FunctionalInterface
+    interface MaybeMatch<U, V> {
+        V apply(PropertyState sate, U arg);
+    }
+    <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f);
 
 }

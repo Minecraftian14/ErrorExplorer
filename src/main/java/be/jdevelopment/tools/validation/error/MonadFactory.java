@@ -2,6 +2,7 @@ package be.jdevelopment.tools.validation.error;
 
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
+import be.jdevelopment.tools.validation.property.PropertyState;
 
 public final class MonadFactory {
 
@@ -78,13 +79,21 @@ public final class MonadFactory {
         }
 
         @Override public final boolean isFailure() { return false; }
+
+        @Override public <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f) {
+            return upperMonadStructureReference().lift(f.apply(PropertyState.SUCCESS, value));
+        }
     }
 
     static class Failure<T> extends _Property<T> {
 
-        private boolean isCut = false;
+        private boolean isCut;
         Failure(Structure structure) {
+            this(structure, false);
+        }
+        Failure(Structure structure, boolean isCut) {
             super(structure);
+            this.isCut = isCut;
         }
 
         @SuppressWarnings("unchecked")
@@ -112,6 +121,13 @@ public final class MonadFactory {
         }
 
         @Override public final boolean isFailure() { return true; }
+
+        @SuppressWarnings("unchecked")
+        @Override public <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f) {
+            Property<? extends U> matchResult = f.apply(PropertyState.FAILURE, null);
+            if (matchResult == null) return (Property<U>) this;
+            return upperMonadStructureReference().lift(f.apply(PropertyState.FAILURE, null));
+        }
     }
 
 }

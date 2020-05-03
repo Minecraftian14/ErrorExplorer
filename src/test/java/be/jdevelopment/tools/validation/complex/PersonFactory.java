@@ -66,17 +66,20 @@ class PersonFactory {
 
         ValidationProcess.ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
                 .filter(Objects::nonNull)
-                .flatMap(self -> monad.of(self).filter(String.class::isInstance)
-                                    .map(String.class::cast)
-                                    .flatMap($ -> monad.of(provider.provideFor(PersonProperty.EMAIL))
-                                            .filter(Objects::nonNull)
-                                            .filter(String[].class::isInstance)
-                                            .map(String[].class::cast)
-                                            .map(Arrays::asList)
-                                            .map(lst -> lst.indexOf($))
-                                            .filter(x -> x > -1)
-                                    )
-                                    .registerFailureCode("notfound"));
+                .match((state, value) -> switch(state) {
+                    case SUCCESS -> monad.of(value).filter(String.class::isInstance)
+                                .map(String.class::cast)
+                                .flatMap($ -> monad.of(provider.provideFor(PersonProperty.EMAIL))
+                                        .filter(Objects::nonNull)
+                                        .filter(String[].class::isInstance)
+                                        .map(String[].class::cast)
+                                        .map(Arrays::asList)
+                                        .map(lst -> lst.indexOf($))
+                                        .filter(x -> x > -1)
+                                )
+                                .registerFailureCode("notfound");
+                    case FAILURE -> null;
+                });
 
         process.addStep(PersonProperty.DEFAULT_EMAIL, validateDefault, mutPerson::setDefaultEmailIndex);
 
