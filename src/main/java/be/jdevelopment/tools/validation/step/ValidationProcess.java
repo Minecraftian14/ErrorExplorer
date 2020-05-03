@@ -30,9 +30,11 @@ public class ValidationProcess {
         return this;
     }
 
-    public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken, ValidationRule<? extends Iterator<T>> onCollectionRule,
-                                                       ValidationRule<U> onSingleRule, Callback<? super Iterator<U>> andThen) {
-        Callback<Iterator<T>> onValidCollectionCallback = collection -> {
+    public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken,
+                                                       ValidationRule<? extends Iterator<T>> onCollectionRule,
+                                                       ValidationRule<U> onSingleRule,
+                                                       Callback<? super Iterator<U>> andThen) {
+        Callback<Iterator<T>> onEachItem = collection -> {
             List<U> collected = new ArrayList<>();
 
             int i = 0;
@@ -49,7 +51,7 @@ public class ValidationProcess {
             andThen.call(collected.iterator());
         };
 
-        return this.addStep(propertyToken, onCollectionRule, onValidCollectionCallback);
+        return this.addStep(propertyToken, onCollectionRule, onEachItem);
     }
 
     @FunctionalInterface

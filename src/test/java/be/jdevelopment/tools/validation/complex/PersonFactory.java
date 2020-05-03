@@ -6,6 +6,7 @@ import be.jdevelopment.tools.validation.property.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcess;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -35,12 +36,10 @@ class PersonFactory {
     private static class MailCollectionImpl extends HashSet<String> implements MailCollection {
         private final String preferred;
         MailCollectionImpl(String[] availables, int preferred) {
-            super(Arrays.stream(availables).collect(Collectors.toList()));
-            this.preferred = availables[preferred];
-        }
-        MailCollectionImpl(String[] availables) {
-            super(Arrays.stream(availables).collect(Collectors.toList()));
-            preferred = null;
+            super(Optional.ofNullable(availables).stream()
+                    .flatMap(Arrays::stream)
+                    .collect(Collectors.toList()));
+            this.preferred = availables == null || availables.length == 0 ? null : availables[preferred];
         }
 
         @Override
@@ -71,8 +70,8 @@ class PersonFactory {
                                 .map(String.class::cast)
                                 .flatMap($ -> monad.of(provider.provideFor(PersonProperty.EMAIL))
                                         .filter(Objects::nonNull)
-                                        .filter(String[].class::isInstance)
-                                        .map(String[].class::cast)
+                                        .filter(Object[].class::isInstance)
+                                        .map(Object[].class::cast)
                                         .map(Arrays::asList)
                                         .map(lst -> lst.indexOf($))
                                         .filter(x -> x > -1)
@@ -86,15 +85,23 @@ class PersonFactory {
         return new Person(new MailCollectionImpl(mutPerson.emailAddresses, mutPerson.defaultAddress), mutPerson.address);
     }
 
-    private static Property<Iterator<String>> validateEmailAddressCollection(Object source, MonadOfProperties monad) {
+    private static Property<Iterator<Object>> validateEmailAddressCollection
+            (Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
-                .filter(String[].class::isInstance)
+                .filter(Object[].class::isInstance)
                 .registerFailureCode("type")
-                .map(String[].class::cast)
-                .map(Arrays::asList)
-                .map(List::iterator);
+                .map(Object[].class::cast)
+                .map(arr -> {
+                    monad.of(arr)
+                            .filter(lst -> Arrays.stream(arr)
+                                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                                    .values().stream()
+                                    .noneMatch(count -> 1L < count))
+                            .registerFailureCode("duplicates");
+                    return Arrays.stream(arr).iterator();
+                });
     }
 
     private final static Pattern EMAIL_PATTERN = compile("^[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+$");
@@ -109,7 +116,8 @@ class PersonFactory {
                 .registerFailureCode("format");
     }
 
-    private static Property<Address> validateAddress(Object source, MonadOfProperties monad) {
+    private static Property<Address> validateAddress
+            (Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")

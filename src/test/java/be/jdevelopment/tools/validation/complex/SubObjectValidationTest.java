@@ -52,13 +52,16 @@ public class SubObjectValidationTest {
 
     @Test
     public void should_invalidateProvider_givenNoAddressAndBadMail() throws Exception {
-        var provider = fromJsonFile("complex/givenNoAddressAndBadMail.json");
+        var provider = fromJsonFile("complex/givenNoAddressAndBadMailList.json");
 
         new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
 
-        assertEquals(2, failures.size());
+        assertEquals(5, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.required"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses.duplicates"::equals));
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[1].format"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[2].format"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[3].type"::equals));
     }
 
     @Test
@@ -84,14 +87,24 @@ public class SubObjectValidationTest {
     private static ObjectProvider fromJsonNode(JsonNode node) {
         return property -> {
             JsonNode it = node.get(property.getName());
-            if (it instanceof TextNode) return it.asText();
-            if (it instanceof ArrayNode)
-                return StreamSupport.stream(((Iterable<JsonNode>) it::elements).spliterator(), false)
-                        .map(JsonNode::asText).toArray(String[]::new);
-            if (!(it instanceof ValueNode) && it != null) return fromJsonNode(it);
+            if (it == null) return null;
 
-            return it;
+            return mapping(it);
         };
+    }
+
+    private static Object mapping(JsonNode node) {
+        if (node.isNull()) return null;
+        if (node.isTextual()) return node.asText();
+        if (node.isInt()) return node.asInt();
+        if (node.isNumber()) return node.asDouble();
+        if (node.isArray())
+            return StreamSupport.stream(((Iterable<JsonNode>) node::elements).spliterator(), false)
+                    .map(SubObjectValidationTest::mapping)
+                    .toArray(Object[]::new);
+        if (!(node instanceof ValueNode)) return fromJsonNode(node);
+
+        return node;
     }
 
 }

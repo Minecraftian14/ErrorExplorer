@@ -48,11 +48,19 @@ class AddressFactory {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("required")
-                .filter(String.class::isInstance)
-                .registerFailureCode("type")
-                .map(String.class::cast)
-                .filter(str -> POSTAL_CODE_PATTERN.matcher(str).matches())
-                .registerFailureCode("format");
+                .flatMap($ -> {
+                    if ($ instanceof String strPostalCode) {
+                        return monad.of(strPostalCode)
+                                .filter(str -> POSTAL_CODE_PATTERN.matcher(str).matches())
+                                .registerFailureCode("format");
+                    } else if ($ instanceof Integer intPostalCode) {
+                        return monad.of(intPostalCode)
+                                .filter(i -> i > 0)
+                                .registerFailureCode("format")
+                                .map(String::valueOf);
+                    }
+                    return monad.<String>fail().registerFailureCode("type");
+                });
     }
 
 }

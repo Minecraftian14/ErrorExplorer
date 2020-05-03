@@ -4,6 +4,8 @@ import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 import be.jdevelopment.tools.validation.property.PropertyState;
 
+import java.util.Objects;
+
 public final class MonadFactory {
 
     private MonadFactory() {}
@@ -18,13 +20,13 @@ public final class MonadFactory {
 
         private FailureBuilder builder;
         Structure(FailureBuilder builder) {
-            this.builder = builder;
+            this.builder = Objects.requireNonNull(builder);
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public <U> Property<U> lift(Property<? extends U> property) {
-            return (Property<U>) property;
+            return property != null ? (Property<U>) property : fail();
         }
 
         @Override
@@ -62,7 +64,10 @@ public final class MonadFactory {
 
         @Override public final
         <U> Property<U> flatMap(MaybeMap<? super T, ? extends Property<? extends U>> f) {
-            return upperMonadStructureReference().lift(f.apply(value));
+            Property<? extends U> nextProp = f.apply(value);
+            return nextProp != null
+                    ? upperMonadStructureReference().lift(nextProp)
+                    : upperMonadStructureReference().fail();
         }
 
         @Override public final
@@ -81,7 +86,10 @@ public final class MonadFactory {
         @Override public final boolean isFailure() { return false; }
 
         @Override public <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f) {
-            return upperMonadStructureReference().lift(f.apply(PropertyState.SUCCESS, value));
+            Property<? extends U> nextProp = f.apply(PropertyState.SUCCESS, value);
+            return nextProp != null
+                    ? upperMonadStructureReference().lift(nextProp)
+                    : upperMonadStructureReference().fail();
         }
     }
 
@@ -125,8 +133,9 @@ public final class MonadFactory {
         @SuppressWarnings("unchecked")
         @Override public <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f) {
             Property<? extends U> matchResult = f.apply(PropertyState.FAILURE, null);
-            if (matchResult == null) return (Property<U>) this;
-            return upperMonadStructureReference().lift(f.apply(PropertyState.FAILURE, null));
+            return matchResult != null
+                    ? upperMonadStructureReference().lift(f.apply(PropertyState.FAILURE, null))
+                    : (Property<U>) this;
         }
     }
 
