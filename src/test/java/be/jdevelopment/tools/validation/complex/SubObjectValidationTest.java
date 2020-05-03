@@ -36,7 +36,7 @@ public class SubObjectValidationTest {
 
     @Test
     public void should_validateProvider_givenValid() throws Exception {
-        ObjectProvider provider = fromJsonFile("complex/givenValidPerson.json");
+        var provider = fromJsonFile("complex/givenValidPerson.json");
 
         Person person = new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
         Predicate<String> mailsContains = str -> person.getAllMails().stream().anyMatch(str::equals);
@@ -52,7 +52,7 @@ public class SubObjectValidationTest {
 
     @Test
     public void should_invalidateProvider_givenNoAddressAndBadMail() throws Exception {
-        ObjectProvider provider = fromJsonFile("complex/givenNoAddressAndBadMail.json");
+        var provider = fromJsonFile("complex/givenNoAddressAndBadMail.json");
 
         new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -63,7 +63,7 @@ public class SubObjectValidationTest {
 
     @Test
     public void should_invalidateProvider_givenInvalidAddressInfo() throws Exception {
-        ObjectProvider provider = fromJsonFile("complex/givenInvalidAddressInfo.json");
+        var provider = fromJsonFile("complex/givenInvalidAddressInfo.json");
 
         new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
 
