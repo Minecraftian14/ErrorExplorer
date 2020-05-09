@@ -2,7 +2,7 @@ package be.jdevelopment.tools.validation.step;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.PropertyToken;
-import be.jdevelopment.tools.validation.error.MonadFactory;
+import be.jdevelopment.tools.validation.error.impl.MonadFactory;
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 
@@ -22,6 +22,11 @@ public class ValidationProcess {
         return MonadFactory.on(errorCode -> baseMonad.fail().registerFailureCode(String.format("%s.%s", propertyToken.getName(), errorCode)));
     }
 
+    @FunctionalInterface
+    public interface ValidationRule<T> {
+        Property<T> validate(Object source, MonadOfProperties workingMonad);
+    }
+
     public <T> ValidationProcess addStep(PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen) {
         MonadOfProperties subMonad = deriveFromParent(propertyToken, monad);
         Object source = provider.provideFor(propertyToken);
@@ -30,38 +35,19 @@ public class ValidationProcess {
         return this;
     }
 
+    @FunctionalInterface
+    public interface Callback<T> {
+        void call(T arg);
+    }
+
     public <T, U> ValidationProcess addCollectionSteps(PropertyToken propertyToken,
                                                        ValidationRule<? extends Iterator<T>> onCollectionRule,
                                                        ValidationRule<U> onSingleRule,
                                                        Callback<? super Iterator<U>> andThen) {
-        Callback<Iterator<T>> onEachItem = collection -> {
-            List<U> collected = new ArrayList<>();
-
-            int i = 0;
-            SimpleBox<U> box = new SimpleBox<>();
-            while (collection.hasNext()) {
-                PropertyToken property = new DynamicCollectionProperty(i, propertyToken);
-                Object resource = collection.next();
-                box.set(null);
-                new ValidationProcess($ -> resource, monad).addStep(property, onSingleRule, box::set);
-                if (box.value != null) collected.add(box.value);
-                i++;
-            }
-
-            andThen.call(collected.iterator());
-        };
+        Callback<Iterator<T>> onEachItem = new ContextualizedCallback<T, U>
+                (monad, propertyToken, onSingleRule, andThen)::call;
 
         return this.addStep(propertyToken, onCollectionRule, onEachItem);
-    }
-
-    @FunctionalInterface
-    public interface ValidationRule<T> {
-        Property<T> validate(Object source, MonadOfProperties workingMonad);
-    }
-
-    @FunctionalInterface
-    public interface Callback<T> {
-        void call(T arg);
     }
 
 }

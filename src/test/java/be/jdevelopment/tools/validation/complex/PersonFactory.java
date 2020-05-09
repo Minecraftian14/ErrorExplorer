@@ -94,8 +94,7 @@ class PersonFactory {
                 .registerFailureCode("type")
                 .map(Object[].class::cast)
                 .map(arr -> {
-                    monad.of(arr)
-                            .filter(lst -> Arrays.stream(arr)
+                    monad.of(arr).filter(lst -> Arrays.stream(lst)
                                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                                     .values().stream()
                                     .noneMatch(count -> 1L < count))
