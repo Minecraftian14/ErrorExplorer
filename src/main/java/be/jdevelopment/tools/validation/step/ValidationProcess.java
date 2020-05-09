@@ -2,7 +2,7 @@ package be.jdevelopment.tools.validation.step;
 
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.PropertyToken;
-import be.jdevelopment.tools.validation.error.MonadFactory;
+import be.jdevelopment.tools.validation.error.impl.MonadFactory;
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 

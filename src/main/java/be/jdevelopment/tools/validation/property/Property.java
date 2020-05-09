@@ -2,10 +2,6 @@ package be.jdevelopment.tools.validation.property;
 
 public interface Property<T> {
 
-    /* Upper monad structure reference */
-
-    MonadOfProperties upperMonadStructureReference();
-
     /* Monad interface */
 
     @FunctionalInterface
@@ -27,8 +23,6 @@ public interface Property<T> {
     Property<T> registerFailureCode(String code);
 
     /** Failure of Success discrimination */
-
-    boolean isFailure();
 
     @FunctionalInterface
     interface MaybeMatch<U, V> {
