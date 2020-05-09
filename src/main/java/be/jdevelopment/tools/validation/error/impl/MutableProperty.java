@@ -67,11 +67,11 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f) {
         if (state != STATE.FAIL_CUT) {
-            PropertyState exposedState = switch(state) {
-                case FAIL_UNCUT -> PropertyState.FAILURE;
-                case SUCCESS -> PropertyState.SUCCESS;
-                default -> throw new IllegalStateException(String.format("The provided state %s cannot be exposed", state.name()));
-            };
+            PropertyState exposedState;
+            if (state == STATE.FAIL_UNCUT) exposedState = PropertyState.FAILURE;
+            else if (state == STATE.SUCCESS) exposedState = PropertyState.SUCCESS;
+            else throw new IllegalStateException(String.format("The provided state %s cannot be exposed", state.name()));
+
             Property<? extends U> nextProp = f.apply(exposedState, (T) value);
             return nextProp != null ? (Property<U>) nextProp : upperMonadStructureReference().fail();
         }
