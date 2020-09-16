@@ -1,0 +1,68 @@
+{
+  "name": "Permalink Head",
+  "underlings": [
+    {
+      "name": "Primary Resource",
+      "underlings": [
+        {
+          "underlings": [
+            {
+              "name": "Piano",
+              "underlings": []
+            },
+            {
+            },
+            {
+              "name": "Bass",
+              "underlings": []
+            },
+            {
+              "name": "Strings",
+              "underlings": []
+            },
+            {
+              "name": "Pad"
+            }
+          ]
+        },
+        {
+          "underlings": [
+            {
+              "name": "Bass Drums",
+              "underlings": []
+            },
+            {
+              "name": "Slaps",
+              "underlings": []
+            },
+            {
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Secondary Resource",
+      "underlings": [
+        {
+          "name": "Development"
+        },
+        {
+          "name": "Production",
+          "underlings": [
+            {
+            },
+            {
+              "name": "Red Ink Prints",
+              "underlings": [
+                {
+                  "name": "Red Ink Mains"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,907 @@
+{
+  "name": "Permalink Head",
+  "underlings": [
+    {
+      "name": "Primary Resource",
+      "underlings": [
+        {
+          "name": "Harmony",
+          "underlings": [
+            {
+              "name": "Piano",
+              "underlings": [
+                {
+                  "name": "Notes",
+                  "underlings": [
+                    {
+                      "name": "Scales",
+                      "underlings": [
+                        {
+                          "name": "C",
+                          "underlings": [
+                            {
+                              "name": "Major",
+                              "underlings": []
+                            },
+                            {
+                              "name": "7th",
+                              "underlings": []
+                            }
+                          ]
+                        },
+                        {
+                          "name": "F",
+                          "underlings": [
+                            {
+                              "name": "Major",
+                              "underlings": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Guitar",
+              "underlings": [
+                {
+                  "name": "C",
+                  "underlings": [
+                    {
+                      "name": "Major",
+                      "underlings": []
+                    },
+                    {
+                      "name": "Minor",
+                      "underlings": []
+                    },
+                    {
+                      "name": "5th",
+                      "underlings": []
+                    }
+                  ]
+                },
+                {
+                  "name": "F",
+                  "underlings": [
+                    {
+                      "name": "Major",
+                      "underlings": [
+                        {
+                          "name": "6th",
+                          "underlings": []
+                        },
+                        {
+                          "name": "9th",
+                          "underlings": [
+                            {
+                              "name": "Plain",
+                              "underlings": [
+                                {
+                                  "name": "Linear",
+                                  "underlings": [
+                                    {
+                                      "name": "Flat",
+                                      "underlings": [
+                                        {
+                                          "name": "Gradient",
+                                          "underlings": []
+                                        },
+                                        {
+                                          "name": "Radial",
+                                          "underlings": []
+                                        },
+                                        {
+                                          "name": "Symmetric",
+                                          "underlings": [
+                                            {
+                                              "name": "Linear",
+                                              "underlings": [
+                                                {
+                                                  "name": "Multiplicative",
+                                                  "underlings": [
+                                                    {
+                                                      "name": "Quadratic",
+                                                      "underlings": [
+                                                        {
+                                                          "name": "Integer",
+                                                          "underlings": []
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "name": "Cubic",
+                                                      "underlings": [
+                                                        {
+                                                          "name": "Double",
+                                                          "underlings": []
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "name": "Quadratic",
+                                              "underlings": [
+                                                {
+                                                  "name": "Radial",
+                                                  "underlings": [
+                                                    {
+                                                      "name": "Quadratic",
+                                                      "underlings": []
+                                                    },
+                                                    {
+                                                      "name": "Degree",
+                                                      "underlings": [
+                                                        {
+                                                          "name": "6",
+                                                          "underlings": [
+                                                            {
+                                                              "name": "Linear",
+                                                              "underlings": []
+                                                            },
+                                                            {
+                                                              "name": "Interpolate",
+                                                              "underlings": [
+                                                                {
+                                                                  "name": "11",
+                                                                  "underlings": []
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "name": "Slide",
+                                      "underlings": [
+                                        {
+                                          "name": "Linear",
+                                          "underlings": [
+                                            {
+                                              "name": "Interpolate",
+                                              "underlings": [
+                                                {
+                                                  "name": "5",
+                                                  "underlings": []
+                                                },
+                                                {
+                                                  "name": "11",
+                                                  "underlings": []
+                                                },
+                                                {
+                                                  "name": "34",
+                                                  "underlings": []
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Bass",
+              "underlings": [
+                {
+                  "name": "Copy",
+                  "underlings": [
+                    {
+                      "name": "Properties",
+                      "underlings": [
+                        {
+                          "name": "Guitar",
+                          "underlings": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "Elevate",
+                  "underlings": [
+                    {
+                      "name": "Gradient",
+                      "underlings": [
+                        {
+                          "name": "Radial",
+                          "underlings": [
+                            {
+                              "name": "Interpolate",
+                              "underlings": [
+                                {
+                                  "name": "45",
+                                  "underlings": []
+                                },
+                                {
+                                  "name": "13",
+                                  "underlings": []
+                                },
+                                {
+                                  "name": "56",
+                                  "underlings": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "Linear",
+                          "underlings": [
+                            {
+                              "name": "23",
+                              "underlings": []
+                            },
+                            {
+                              "name": "999",
+                              "underlings": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Strings",
+              "underlings": [
+                {
+                  "name": "C",
+                  "underlings": [
+                    {
+                      "name": "Limit",
+                      "underlings": [
+                        {
+                          "name": "Scale",
+                          "underlings": [
+                            {
+                              "name": "Numendo Cycle",
+                              "underlings": [
+                                {
+                                  "name": "Numendo Single",
+                                  "underlings": [
+                                    {
+                                      "name": "Passion",
+                                      "underlings": [
+                                        {
+                                          "name": "Slow",
+                                          "underlings": [
+                                            {
+                                              "name": "Interpolate",
+                                              "underlings": [
+                                                {
+                                                  "name": "34",
+                                                  "underlings": []
+                                                },
+                                                {
+                                                  "name": "67",
+                                                  "underlings": []
+                                                },
+                                                {
+                                                  "name": "24",
+                                                  "underlings": []
+                                                },
+                                                {
+                                                  "name": "11",
+                                                  "underlings": []
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "name": "Linearality",
+                                              "underlings": [
+                                                {
+                                                  "name": "11",
+                                                  "underlings": [
+                                                    {
+                                                      "name": "Procession",
+                                                      "underlings": [
+                                                        {
+                                                          "name": "Matrix",
+                                                          "underlings": [
+                                                            {
+                                                              "name": "23",
+                                                              "underlings": [
+                                                                {
+                                                                  "name": "45",
+                                                                  "underlings": [
+                                                                    {
+                                                                      "name": "89",
+                                                                      "underlings": [
+                                                                        {
+                                                                          "name": "67",
+                                                                          "underlings": [
+                                                                            {
+                                                                              "name": "90",
+                                                                              "underlings": [
+                                                                                {
+                                                                                  "name": "456",
+                                                                                  "underlings": []
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "name": "53",
+                                                              "underlings": [
+                                                                {
+                                                                  "name": "57",
+                                                                  "underlings": [
+                                                                    {
+                                                                      "name": "359",
+                                                                      "underlings": [
+                                                                        {
+                                                                          "name": "647",
+                                                                          "underlings": [
+                                                                            {
+                                                                              "name": "40",
+                                                                              "underlings": [
+                                                                                {
+                                                                                  "name": "36",
+                                                                                  "underlings": []
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "name": "53",
+                                                              "underlings": [
+                                                                {
+                                                                  "name": "457",
+                                                                  "underlings": [
+                                                                    {
+                                                                      "name": "824",
+                                                                      "underlings": [
+                                                                        {
+                                                                          "name": "37",
+                                                                          "underlings": [
+                                                                            {
+                                                                              "name": "46",
+                                                                              "underlings": [
+                                                                                {
+                                                                                  "name": "36",
+                                                                                  "underlings": []
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "name": "Progression",
+                                                      "underlings": [
+                                                        {
+                                                          "name": "Fantom",
+                                                          "underlings": [
+                                                            {
+                                                              "name": "Dupex",
+                                                              "underlings": [
+                                                                {
+                                                                  "name": "12",
+                                                                  "underlings": []
+                                                                },
+                                                                {
+                                                                  "name": "34",
+                                                                  "underlings": []
+                                                                },
+                                                                {
+                                                                  "name": "Interpolate",
+                                                                  "underlings": [
+                                                                    {
+                                                                      "name": "24",
+                                                                      "underlings": []
+                                                                    },
+                                                                    {
+                                                                      "name": "36",
+                                                                      "underlings": []
+                                                                    },
+                                                                    {
+                                                                      "name": "54",
+                                                                      "underlings": []
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        },
+                                                        {
+                                                          "name": "Rolex",
+                                                          "underlings": [
+                                                            {
+                                                              "name": "23",
+                                                              "underlings": []
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Numendo Singlet",
+                                  "underlings": [
+                                    {
+                                      "name": "Lay",
+                                      "underlings": [
+                                        {
+                                          "name": "12",
+                                          "underlings": []
+                                        },
+                                        {
+                                          "name": "134",
+                                          "underlings": []
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Numendo Pair",
+                                  "underlings": [
+                                    {
+                                      "name": "Gorilla",
+                                      "underlings": [
+                                        {
+                                          "name": "Rolex",
+                                          "underlings": [
+                                            {
+                                              "name": "12",
+                                              "underlings": []
+                                            },
+                                            {
+                                              "name": "14",
+                                              "underlings": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "Numendo Trio",
+                                  "underlings": [
+                                    {
+                                      "name": "NONE",
+                                      "underlings": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Pad",
+              "underlings": [
+                {
+                  "name": "Siphon",
+                  "underlings": [
+                    {
+                      "name": "Fan",
+                      "underlings": [
+                        {
+                          "name": "Gradient",
+                          "underlings": [
+                            {
+                              "name": "Linear",
+                              "underlings": [
+                                {
+                                  "name": "45",
+                                  "underlings": []
+                                },
+                                {
+                                  "name": "36",
+                                  "underlings": []
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Radial",
+                              "underlings": [
+                                {
+                                  "name": "Montex",
+                                  "underlings": [
+                                    {
+                                      "name": "Saturation",
+                                      "underlings": [
+                                        {
+                                          "name": "Height",
+                                          "underlings": [
+                                            {
+                                              "name": "678",
+                                              "underlings": []
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "name": "Depth",
+                                          "underlings": [
+                                            {
+                                              "name": "34",
+                                              "underlings": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "name": "Romonda",
+                                      "underlings": [
+                                        {
+                                          "name": "34",
+                                          "underlings": []
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Pan",
+                      "underlings": [
+                        {
+                          "name": "673",
+                          "underlings": [
+                            {
+                              "name": "Linear Number",
+                              "underlings": [
+                                {
+                                  "name": "Interpolate",
+                                  "underlings": [
+                                    {
+                                      "name": "45",
+                                      "underlings": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tan",
+                      "underlings": [
+                        {
+                          "name": "Type Property",
+                          "underlings": [
+                            {
+                              "name": "FX han",
+                              "underlings": [
+                                {
+                                  "name": "IGNORE",
+                                  "underlings": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Rhythm",
+          "underlings": [
+            {
+              "name": "Bass Drums",
+              "underlings": [
+                {
+                  "name": "External",
+                  "underlings": [
+                    {
+                      "name": "Link",
+                      "underlings": [
+                        {
+                          "name": "https_core_base_ForgeRatte_MassBunk_instrument",
+                          "underlings": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Action",
+                      "underlings": [
+                        {
+                          "name": "Import",
+                          "underlings": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Slaps",
+              "underlings": [
+                {
+                  "name": "Context",
+                  "underlings": [
+                    {
+                      "name": "Register",
+                      "underlings": [
+                        {
+                          "name": "NONE",
+                          "underlings": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Tray Bars",
+              "underlings": [
+                {
+                  "name": "Element",
+                  "underlings": [
+                    {
+                      "name": "Matrix",
+                      "underlings": [
+                        {
+                          "name": "24",
+                          "underlings": [
+                            {
+                              "name": "25",
+                              "underlings": [
+                                {
+                                  "name": "46",
+                                  "underlings": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "2354",
+                          "underlings": [
+                            {
+                              "name": "2255",
+                              "underlings": [
+                                {
+                                  "name": "646",
+                                  "underlings": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "name": "224",
+                          "underlings": [
+                            {
+                              "name": "4625",
+                              "underlings": [
+                                {
+                                  "name": "346",
+                                  "underlings": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Map",
+                      "underlings": [
+                        {
+                          "name": "Properties",
+                          "underlings": [
+                            {
+                              "name": "Access Instruments",
+                              "underlings": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Secondary Resource",
+      "underlings": [
+        {
+          "name": "Development",
+          "underlings": [
+            {
+              "name": "Sound Forge",
+              "underlings": [
+                {
+                  "name": "Register",
+                  "underlings": [
+                    {
+                      "name": "Mark",
+                      "underlings": [
+                        {
+                          "name": "Randovou",
+                          "underlings": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Cubase",
+              "underlings": [
+                {
+                  "name": "Team",
+                  "underlings": [
+                    {
+                      "name": "Register",
+                      "underlings": [
+                        {
+                          "name": "Mark",
+                          "underlings": [
+                            {
+                              "name": "Randavou",
+                              "underlings": []
+                            },
+                            {
+                              "name": "Marxia",
+                              "underlings": []
+                            },
+                            {
+                              "name": "Mesamatte",
+                              "underlings": []
+                            },
+                            {
+                              "name": "Toby",
+                              "underlings": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Corel Draw",
+              "underlings": [
+                {
+                  "name": "Register",
+                  "underlings": [
+                    {
+                      "name": "Mark",
+                      "underlings": [
+                        {
+                          "name": "Marxia",
+                          "underlings": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Production",
+          "underlings": [
+            {
+              "name": "Soft Advertisements",
+              "underlings": [
+                {
+                  "name": "Link",
+                  "underlings": [
+                    {
+                      "name": "https_www_softads_com",
+                      "underlings": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Red Ink Prints",
+              "underlings": [
+                {
+                  "name": "Red Ink Mains",
+                  "underlings": [
+                    {
+                      "name": "Link",
+                      "underlings": [
+                        {
+                          "name": "https_www_redink_com_Mains",
+                          "underlings": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

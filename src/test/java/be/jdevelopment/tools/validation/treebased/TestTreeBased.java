@@ -33,15 +33,36 @@ public class TestTreeBased {
     }
 
     @org.junit.Test
+    public void testSuccessEnormous() throws Exception {
+        var provider = ObjectProviderProvider.fromJsonFile("treebased/membersEnormous.json");
+
+        Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
+
+        assertTrue(failures.isEmpty());
+        assertEquals(21, info.getDepth());
+    }
+
+    @org.junit.Test
     public void testFailureWrongName() throws Exception {
         var provider = ObjectProviderProvider.fromJsonFile("treebased/membersWrongName.json");
 
         Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
 
-        failures.forEach(failure -> System.out.println(failure.getCode()));
+        assertEquals(7, failures.size());
+        assertEquals(7, failures.stream().filter(failure -> failure.getCode().endsWith("invalidCharacters")).count());
+        assertEquals(5, info.getDepth());
+    }
 
+    @org.junit.Test
+    public void testFailureNullElements() throws Exception {
+        var provider = ObjectProviderProvider.fromJsonFile("treebased/membersNullElements.json");
 
-        assertEquals(1, failures.size());
+        Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
+
+//        failures.forEach(failure -> System.out.println(failure.getCode()));
+
+        assertEquals(11, failures.size());
+        assertEquals(11, failures.stream().filter(failure -> failure.getCode().endsWith("nullValue")).count());
         assertEquals(5, info.getDepth());
     }
 
