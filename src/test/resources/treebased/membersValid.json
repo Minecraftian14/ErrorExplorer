@@ -1,0 +1,92 @@
+{
+  "name": "Permalink Head",
+  "underlings": [
+    {
+      "name": "Primary Resource",
+      "underlings": [
+        {
+          "name": "Harmony",
+          "underlings": [
+            {
+              "name": "Piano",
+              "underlings": []
+            },
+            {
+              "name": "Guitar",
+              "underlings": []
+            },
+            {
+              "name": "Bass",
+              "underlings": []
+            },
+            {
+              "name": "Strings",
+              "underlings": []
+            },
+            {
+              "name": "Pad",
+              "underlings": []
+            }
+          ]
+        },
+        {
+          "name": "Rhythm",
+          "underlings": [
+            {
+              "name": "Bass Drums",
+              "underlings": []
+            },
+            {
+              "name": "Slaps",
+              "underlings": []
+            },
+            {
+              "name": "Tray Bars",
+              "underlings": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Secondary Resource",
+      "underlings": [
+        {
+          "name": "Development",
+          "underlings": [
+            {
+              "name": "Sound Forge",
+              "underlings": []
+            },
+            {
+              "name": "Cubase",
+              "underlings": []
+            },
+            {
+              "name": "Corel Draw",
+              "underlings": []
+            }
+          ]
+        },
+        {
+          "name": "Production",
+          "underlings": [
+            {
+              "name": "Soft Advertisements",
+              "underlings": []
+            },
+            {
+              "name": "Red Ink Prints",
+              "underlings": [
+                {
+                  "name": "Red Ink Mains",
+                  "underlings": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
