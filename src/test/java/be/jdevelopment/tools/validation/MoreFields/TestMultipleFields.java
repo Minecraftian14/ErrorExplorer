@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.MoreFields;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.error.impl.MonadFactory;
-import be.jdevelopment.tools.validation.util.ObjectProviderProvider;
+import be.jdevelopment.tools.validation.util.ObjectProviderHelper;
 import org.junit.Before;
 
 import java.util.HashSet;
@@ -24,7 +24,7 @@ public class TestMultipleFields {
 
     @org.junit.Test
     public void testSuccess() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("morefields/contactS.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactS.json");
 
         Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -38,7 +38,7 @@ public class TestMultipleFields {
 
     @org.junit.Test
     public void testFailureName() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("morefields/contactF_name.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactF_name.json");
 
         Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -48,7 +48,7 @@ public class TestMultipleFields {
 
     @org.junit.Test
     public void testFailureNumber() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("morefields/contactF_number.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactF_number.json");
 
         Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -58,7 +58,7 @@ public class TestMultipleFields {
 
     @org.junit.Test
     public void testFailureDebt() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("morefields/contactF_debt.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactF_debt.json");
 
         Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
 

@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.completebasic;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.error.impl.MonadFactory;
-import be.jdevelopment.tools.validation.util.ObjectProviderProvider;
+import be.jdevelopment.tools.validation.util.ObjectProviderHelper;
 import org.junit.Before;
 
 import java.util.HashSet;
@@ -24,7 +24,7 @@ public class TestCompleteBasics {
 
     @org.junit.Test
     public void testSuccess() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("completebasic/infoS.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("completebasic/infoS.json");
 
         Info info = new InfoFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -34,7 +34,7 @@ public class TestCompleteBasics {
 
     @org.junit.Test
     public void testFailureNull() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("completebasic/infoF1.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("completebasic/infoF1.json");
 
         new InfoFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -44,7 +44,7 @@ public class TestCompleteBasics {
 
     @org.junit.Test
     public void testFailureTooLong() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("completebasic/infoF2.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("completebasic/infoF2.json");
 
         new InfoFactory(MonadFactory.on(failureBuilder)).create(provider);
 

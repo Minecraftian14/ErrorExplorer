@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.treebased;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.error.impl.MonadFactory;
-import be.jdevelopment.tools.validation.util.ObjectProviderProvider;
+import be.jdevelopment.tools.validation.util.ObjectProviderHelper;
 import org.junit.Before;
 
 import java.util.HashSet;
@@ -24,7 +24,7 @@ public class TestTreeBased {
 
     @org.junit.Test
     public void testSuccess() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("treebased/membersValid.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("treebased/membersValid.json");
 
         Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -34,7 +34,7 @@ public class TestTreeBased {
 
     @org.junit.Test
     public void testSuccessEnormous() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("treebased/membersEnormous.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("treebased/membersEnormous.json");
 
         Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -44,7 +44,7 @@ public class TestTreeBased {
 
     @org.junit.Test
     public void testFailureWrongName() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("treebased/membersWrongName.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("treebased/membersWrongName.json");
 
         Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
 
@@ -55,7 +55,7 @@ public class TestTreeBased {
 
     @org.junit.Test
     public void testFailureNullElements() throws Exception {
-        var provider = ObjectProviderProvider.fromJsonFile("treebased/membersNullElements.json");
+        var provider = ObjectProviderHelper.objectProviderFromJsonFile("treebased/membersNullElements.json");
 
         Member info = new MemberFactory(MonadFactory.on(failureBuilder)).create(provider);
 

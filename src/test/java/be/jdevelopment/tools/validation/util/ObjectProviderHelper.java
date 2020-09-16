@@ -10,19 +10,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.stream.StreamSupport;
 
-public class ObjectProviderProvider {
+public class ObjectProviderHelper {
 
     /**
      * Reading the json file data to a {@link JsonNode}
      * Then returning an {@link ObjectProvider}
      * by calling fromJsonNode({@link JsonNode})
      */
-    public static ObjectProvider fromJsonFile(String path) throws IOException {
+    public static ObjectProvider objectProviderFromJsonFile(String path) throws IOException {
         JsonNode node;
         try (InputStream inputStream = SubObjectValidationTest.class.getClassLoader().getResourceAsStream(path)) {
             node = new ObjectMapper().readTree(inputStream);
         }
-        return fromJsonNode(node);
+        return objectProviderFromJsonNode(node);
     }
 
     /**
@@ -32,7 +32,7 @@ public class ObjectProviderProvider {
      * will return the respective value off the {@link JsonNode}
      * </p>
      */
-    private static ObjectProvider fromJsonNode(JsonNode node) {
+    private static ObjectProvider objectProviderFromJsonNode(JsonNode node) {
         return property -> {
             JsonNode it = node.get(property.getName());
             if (it == null) return null;
@@ -57,9 +57,9 @@ public class ObjectProviderProvider {
         if (node.isNumber()) return node.asDouble();
         if (node.isArray())
             return StreamSupport.stream(((Iterable<JsonNode>) node::elements).spliterator(), false)
-                    .map(ObjectProviderProvider::mapping)
+                    .map(ObjectProviderHelper::mapping)
                     .toArray(Object[]::new);
-        if (!(node instanceof ValueNode)) return fromJsonNode(node);
+        if (!(node instanceof ValueNode)) return objectProviderFromJsonNode(node);
 
         return node;
     }
