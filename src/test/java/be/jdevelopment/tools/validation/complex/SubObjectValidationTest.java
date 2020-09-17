@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.complex;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
-import be.jdevelopment.tools.validation.error.impl.MonadFactory;
+import be.jdevelopment.tools.validation.property.impl.Monads;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -29,14 +29,14 @@ public class SubObjectValidationTest {
     @Before
     public void setUp() {
         failures = new HashSet<>();
-        failureBuilder = errorCode -> failures.add(() -> errorCode);
+        failureBuilder = errorCode -> failures.add(errorCode::toString);
     }
 
     @Test
     public void should_validateProvider_givenValid() throws Exception {
         var provider = fromJsonFile("complex/givenValidPerson.json");
 
-        Person person = new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Person person = new PersonFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
         Predicate<String> mailsContains = str -> person.getAllMails().stream().anyMatch(str::equals);
 
         assertTrue(failures.isEmpty());
@@ -52,7 +52,7 @@ public class SubObjectValidationTest {
     public void should_invalidateProvider_givenNoAddressAndBadMail() throws Exception {
         var provider = fromJsonFile("complex/givenNoAddressAndBadMailList.json");
 
-        new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
+        new PersonFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(5, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.required"::equals));
@@ -66,7 +66,7 @@ public class SubObjectValidationTest {
     public void should_invalidateProvider_givenInvalidAddressInfo() throws Exception {
         var provider = fromJsonFile("complex/givenInvalidAddressInfo.json");
 
-        new PersonFactory(MonadFactory.on(failureBuilder)).create(provider);
+        new PersonFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(3, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.postalCode.format"::equals));

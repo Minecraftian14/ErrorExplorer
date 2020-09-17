@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.MoreFields;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 import be.jdevelopment.tools.validation.property.Property;
-import be.jdevelopment.tools.validation.step.ValidationProcess;
+import be.jdevelopment.tools.validation.step.ValidationProcesses;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -37,10 +37,10 @@ public class ContactFactory {
     Contact create(ObjectProvider provider) {
         MutContact mutContact = new MutContact();
 
-        ValidationProcess process = new ValidationProcess(provider, monad)
-                .addStep(ContactProperties.NAME, ContactFactory::NameValidation, mutContact::setName)
-                .addStep(ContactProperties.NUMBER, ContactFactory::NumberValidation, mutContact::setNumber)
-                .addStep(ContactProperties.DEBT,
+        ValidationProcesses.newAutoCommitProcess(monad, provider)
+                .performStep(ContactProperties.NAME, ContactFactory::NameValidation, mutContact::setName)
+                .performStep(ContactProperties.NUMBER, ContactFactory::NumberValidation, mutContact::setNumber)
+                .performStep(ContactProperties.DEBT,
                         ContactFactory::DebtValidation,
                         mutContact::setDebt);
 

@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.completebasic;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 import be.jdevelopment.tools.validation.property.Property;
-import be.jdevelopment.tools.validation.step.ValidationProcess;
+import be.jdevelopment.tools.validation.step.ValidationProcesses;
 
 import java.util.Objects;
 
@@ -26,8 +26,8 @@ public class InfoFactory {
     Info create(ObjectProvider provider) {
         MutInfo mutInfo = new MutInfo();
 
-        new ValidationProcess(provider, monad)
-                .addStep(InfoProperty.DATA, InfoFactory::DataValidation, mutInfo::setData);
+        ValidationProcesses.newAutoCommitProcess(monad, provider)
+                .performStep(InfoProperty.DATA, InfoFactory::DataValidation, mutInfo::setData);
 
         return new Info(mutInfo.data);
     }

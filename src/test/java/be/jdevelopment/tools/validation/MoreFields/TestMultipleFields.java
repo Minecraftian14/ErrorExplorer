@@ -2,7 +2,7 @@ package be.jdevelopment.tools.validation.MoreFields;
 
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
-import be.jdevelopment.tools.validation.error.impl.MonadFactory;
+import be.jdevelopment.tools.validation.property.impl.Monads;
 import be.jdevelopment.tools.validation.util.ObjectProviderHelper;
 import org.junit.Before;
 
@@ -19,14 +19,14 @@ public class TestMultipleFields {
     @Before
     public void setUp() {
         failures = new HashSet<>();
-        failureBuilder = errorCode -> failures.add(() -> errorCode);
+        failureBuilder = errorCode -> failures.add(errorCode::toString);
     }
 
     @org.junit.Test
     public void testSuccess() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactS.json");
 
-        Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         failures.forEach(failure -> System.out.println(failure.getCode()));
 
@@ -40,7 +40,7 @@ public class TestMultipleFields {
     public void testFailureName() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactF_name.json");
 
-        Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
         assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("name.formatError")).count());
@@ -50,7 +50,7 @@ public class TestMultipleFields {
     public void testFailureNumber() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactF_number.json");
 
-        Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
         assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("number.invalidLength")).count());
@@ -60,7 +60,7 @@ public class TestMultipleFields {
     public void testFailureDebt() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("morefields/contactF_debt.json");
 
-        Contact contact = new ContactFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
         assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("debt.notPositive")).count());

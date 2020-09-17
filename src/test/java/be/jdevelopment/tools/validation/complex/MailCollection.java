@@ -1,10 +1,8 @@
 package be.jdevelopment.tools.validation.complex;
 
-import java.util.Iterator;
-
 interface MailCollection {
 
-    Iterator<String> getMails();
+    Iterable<String> getMails();
 
     String getPreferredMail();
 

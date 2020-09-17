@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.complex;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
-import be.jdevelopment.tools.validation.step.ValidationProcess;
+import be.jdevelopment.tools.validation.step.ValidationProcesses;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -27,9 +27,9 @@ class AddressFactory {
     Address create(ObjectProvider provider) {
         MutAddress mutAddress = new MutAddress();
 
-        new ValidationProcess(provider, monad)
-            .addStep(AddressProperty.STREET, AddressFactory::validateRequiredString, mutAddress::setStreet)
-            .addStep(AddressProperty.POSTAL_CODE, AddressFactory::validatePostalCode, mutAddress::setPostalCode);
+        ValidationProcesses.newAutoCommitProcess(monad, provider)
+                .performStep(AddressProperty.STREET, AddressFactory::validateRequiredString, mutAddress::setStreet)
+                .performStep(AddressProperty.POSTAL_CODE, AddressFactory::validatePostalCode, mutAddress::setPostalCode);
 
         return new Address(mutAddress.street, mutAddress.postalCode);
     }

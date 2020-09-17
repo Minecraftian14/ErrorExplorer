@@ -1,33 +1,37 @@
 package be.jdevelopment.tools.validation.property;
 
+import be.jdevelopment.tools.validation.error.Failure;
+
 public interface Property<T> {
 
     /* Monad interface */
 
     @FunctionalInterface
-    interface MaybeMap<U, V> {
+    interface PropertyMap<U, V> {
         V apply(U arg);
     }
 
-    <U> Property<U> flatMap(MaybeMap<? super T, ? extends Property<? extends U>> f);
+    <U> Property<U> flatMap(PropertyMap<? super T, ? extends Property<? extends U>> f);
 
-    <U> Property<U> map(MaybeMap<? super T, ? extends U> f);
+    <U> Property<U> map(PropertyMap<? super T, ? extends U> f);
 
     @FunctionalInterface
-    interface MaybePredicate<U> {
+    interface PropertyPredicate<U> {
         boolean test(U arg);
     }
 
-    Property<T> filter(MaybePredicate<? super T> predicate);
+    Property<T> filter(PropertyPredicate<? super T> predicate);
 
     Property<T> registerFailureCode(String code);
+
+    Property<T> registerFailure(Failure code);
 
     /** Failure of Success discrimination */
 
     @FunctionalInterface
-    interface MaybeMatch<U, V> {
+    interface PropertyMatch<U, V> {
         V apply(PropertyState sate, U arg);
     }
-    <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f);
+    <U> Property<U> match(PropertyMatch<? super T, ? extends Property<? extends U>> f);
 
 }

@@ -3,7 +3,8 @@ package be.jdevelopment.tools.validation.complex;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
-import be.jdevelopment.tools.validation.step.ValidationProcess;
+import be.jdevelopment.tools.validation.step.AutoCommitValidationProcess;
+import be.jdevelopment.tools.validation.step.ValidationProcesses;
 
 import java.util.*;
 import java.util.function.Function;
@@ -26,8 +27,8 @@ class PersonFactory {
         int defaultAddress;
 
         void setAddress(Address arg) { address = arg; }
-        void setEmailAddresses(Iterator<String> arg) {
-            emailAddresses = StreamSupport.stream(Spliterators.spliteratorUnknownSize(arg, Spliterator.ORDERED), false)
+        void setEmailAddresses(Iterable<String> arg) {
+            emailAddresses = StreamSupport.stream(arg.spliterator(), false)
                     .toArray(String[]::new);
         }
         void setDefaultEmailIndex(int arg) { defaultAddress = arg; }
@@ -43,8 +44,8 @@ class PersonFactory {
         }
 
         @Override
-        public Iterator<String> getMails() {
-            return iterator();
+        public Iterable<String> getMails() {
+            return this;
         }
 
         @Override
@@ -56,14 +57,14 @@ class PersonFactory {
     Person create(ObjectProvider provider) {
         MutPerson mutPerson = new MutPerson();
 
-        ValidationProcess process = new ValidationProcess(provider, monad)
-            .addCollectionSteps(PersonProperty.EMAIL,
+        AutoCommitValidationProcess process = ValidationProcesses.newAutoCommitProcess(monad, provider)
+            .performCollectionSteps(PersonProperty.EMAIL,
                 PersonFactory::validateEmailAddressCollection,
                 PersonFactory::validateEmailAddress,
                 mutPerson::setEmailAddresses)
-            .addStep(PersonProperty.ADDRESS, PersonFactory::validateAddress, mutPerson::setAddress);
+            .performStep(PersonProperty.ADDRESS, PersonFactory::validateAddress, mutPerson::setAddress);
 
-        ValidationProcess.ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
+        AutoCommitValidationProcess.ValidationRule<Integer> validateDefault = (source, monad) -> monad.of(source)
                 .filter(Objects::nonNull)
                 .match((state, value) -> switch(state) { // default was provided, we validate
                     case SUCCESS -> monad.of(value).filter(String.class::isInstance)
@@ -80,12 +81,12 @@ class PersonFactory {
                     case FAILURE -> null;
                 });
 
-        process.addStep(PersonProperty.DEFAULT_EMAIL, validateDefault, mutPerson::setDefaultEmailIndex);
+        process.performStep(PersonProperty.DEFAULT_EMAIL, validateDefault, mutPerson::setDefaultEmailIndex);
 
         return new Person(new MailCollectionImpl(mutPerson.emailAddresses, mutPerson.defaultAddress), mutPerson.address);
     }
 
-    private static Property<Iterator<Object>> validateEmailAddressCollection
+    private static Property<Iterable<Object>> validateEmailAddressCollection
             (Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
@@ -99,7 +100,7 @@ class PersonFactory {
                                     .values().stream()
                                     .noneMatch(count -> 1L < count))
                             .registerFailureCode("duplicates");
-                    return Arrays.stream(arr).iterator();
+                    return List.of(arr);
                 });
     }
 

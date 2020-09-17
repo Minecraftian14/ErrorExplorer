@@ -3,7 +3,7 @@ package be.jdevelopment.tools.validation.treebased;
 import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 import be.jdevelopment.tools.validation.property.Property;
-import be.jdevelopment.tools.validation.step.ValidationProcess;
+import be.jdevelopment.tools.validation.step.ValidationProcesses;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -20,23 +20,24 @@ public class MemberFactory {
 
     private static class MutMember {
         String name;
-        List<Member> underlings = List.of();
+        List<Member> underlings = Collections.emptyList();
 
         public void setName(String name) {
             this.name = name;
         }
 
-        public void setUnderlings(Iterator<Member> underlings) {
-            this.underlings = StreamSupport.stream(Spliterators.spliteratorUnknownSize(underlings, Spliterator.ORDERED), false).collect(Collectors.toList());
+        public void setUnderlings(Iterable<Member> underlings) {
+            this.underlings = StreamSupport.stream(underlings.spliterator(), false)
+                    .collect(Collectors.toList());
         }
     }
 
     Member create(ObjectProvider provider) {
         MutMember mutMember = new MutMember();
 
-        new ValidationProcess(provider, monad)
-                .addStep(MemberProperties.NAME, MemberFactory::NameValidation, mutMember::setName)
-                .addCollectionSteps(MemberProperties.UNDERLINGS,
+        ValidationProcesses.newAutoCommitProcess(monad, provider)
+                .performStep(MemberProperties.NAME, MemberFactory::NameValidation, mutMember::setName)
+                .performCollectionSteps(MemberProperties.UNDERLINGS,
                         MemberFactory::validateMembersCollection,
                         MemberFactory::validateMember,
                         mutMember::setUnderlings);
@@ -54,13 +55,13 @@ public class MemberFactory {
                 .registerFailureCode("invalidCharacters");
     }
 
-    private static Property<Iterator<Object>> validateMembersCollection
+    private static Property<Iterable<Object>> validateMembersCollection
             (Object source, MonadOfProperties monad) {
         return monad.of(source)
                 .filter(Objects::nonNull)
                 .registerFailureCode("nullValue")
                 .map(Object[].class::cast)
-                .map(arr -> Arrays.stream(arr).iterator());
+                .map(List::of);
     }
 
     private static Property<Member> validateMember(Object source, MonadOfProperties monad) {

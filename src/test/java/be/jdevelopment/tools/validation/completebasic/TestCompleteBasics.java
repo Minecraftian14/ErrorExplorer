@@ -2,7 +2,7 @@ package be.jdevelopment.tools.validation.completebasic;
 
 import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.error.FailureBuilder;
-import be.jdevelopment.tools.validation.error.impl.MonadFactory;
+import be.jdevelopment.tools.validation.property.impl.Monads;
 import be.jdevelopment.tools.validation.util.ObjectProviderHelper;
 import org.junit.Before;
 
@@ -19,14 +19,14 @@ public class TestCompleteBasics {
     @Before
     public void setUp() {
         failures = new HashSet<>();
-        failureBuilder = errorCode -> failures.add(() -> errorCode);
+        failureBuilder = errorCode -> failures.add(errorCode::toString);
     }
 
     @org.junit.Test
     public void testSuccess() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("completebasic/infoS.json");
 
-        Info info = new InfoFactory(MonadFactory.on(failureBuilder)).create(provider);
+        Info info = new InfoFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertTrue(failures.isEmpty());
         assertEquals(69, info.data().length());
@@ -36,7 +36,7 @@ public class TestCompleteBasics {
     public void testFailureNull() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("completebasic/infoF1.json");
 
-        new InfoFactory(MonadFactory.on(failureBuilder)).create(provider);
+        new InfoFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
         assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("data.nullValue")).count());
@@ -46,7 +46,7 @@ public class TestCompleteBasics {
     public void testFailureTooLong() throws Exception {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("completebasic/infoF2.json");
 
-        new InfoFactory(MonadFactory.on(failureBuilder)).create(provider);
+        new InfoFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
         assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("data.longData")).count());

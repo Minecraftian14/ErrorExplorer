@@ -3,42 +3,39 @@ package be.jdevelopment.tools.validation.step;
 import be.jdevelopment.tools.validation.PropertyToken;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 
 class ContextualizedCallback<T,U> {
 
     private final MonadOfProperties monad;
     private final PropertyToken propertyToken;
-    private final ValidationProcess.ValidationRule<U> validationRule;
-    private final ValidationProcess.Callback<? super Iterator<U>> andThen;
+    private final AutoCommitValidationProcess.ValidationRule<U> validationRule;
+    private final AutoCommitValidationProcess.Callback<? super Iterable<U>> andThen;
     ContextualizedCallback(
             MonadOfProperties monad,
             PropertyToken propertyToken,
-            ValidationProcess.ValidationRule<U> onSingleRule,
-            ValidationProcess.Callback<? super Iterator<U>> andThen) {
+            AutoCommitValidationProcess.ValidationRule<U> onSingleRule,
+            AutoCommitValidationProcess.Callback<? super Iterable<U>> andThen) {
         this.monad = monad;
         this.propertyToken = propertyToken;
         this.validationRule = onSingleRule;
         this.andThen = andThen;
     }
 
-    void call(Iterator<T> collection) {
-        List<U> collected = new Stack<>();
+    void call(Iterable<T> collection) {
+        Stack<U> collected = new Stack<>();
+        SimpleBox<U> box = new SimpleBox<>();
 
         int i = 0;
-        SimpleBox<U> box = new SimpleBox<>();
-        while (collection.hasNext()) {
-            PropertyToken property = new DynamicCollectionProperty(i, propertyToken);
-            Object resource = collection.next();
-            box.set(null);
-            new ValidationProcess($ -> resource, monad).addStep(property, validationRule, box::set);
-            if (box.value != null) collected.add(box.value);
+        for (Object resource : collection) {
+            box.reset();
+                new AutoCommitValidationProcess(monad, $ -> resource)
+                    .performStep(new DynamicCollectionProperty(i, propertyToken), validationRule, box::set);
+            if (box.isNonEmpty) collected.add(box.value);
             i++;
         }
 
-        andThen.call(collected.iterator());
+        andThen.call(collected);
     }
 
 }

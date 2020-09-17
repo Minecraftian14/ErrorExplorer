@@ -1,4 +1,4 @@
-package be.jdevelopment.tools.validation.error.impl;
+package be.jdevelopment.tools.validation.property.impl;
 
 import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
@@ -17,8 +17,7 @@ class MonadStructure implements MonadOfProperties {
     }
 
     @SuppressWarnings("unchecked")
-    @Override public final
-    <U> Property<U> fail() {
+    @Override public final <U> Property<U> fail() {
         return (Property<U>) new MutableProperty<>(this);
     }
 }
