@@ -17,7 +17,7 @@ class MutableProperty<T> extends AbstractProperty<T> {
         value = null;
     }
 
-    private Property<T> switchTo(STATE state) {
+    MutableProperty<T> switchTo(STATE state) {
         this.state = state;
         if (state != STATE.SUCCESS) {
             value = null; // free reference
