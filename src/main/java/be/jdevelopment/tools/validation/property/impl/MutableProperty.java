@@ -97,7 +97,8 @@ class MutableProperty<T> extends AbstractProperty<T> {
             try {
             	nextProp = f.apply(exposedState, (T) value);
             } finally {
-            	return nextProp != null ? (Property<U>) nextProp : upperMonadStructureReference().fail();
+            	return nextProp != null ? (Property<U>) nextProp :
+            		exposedState == PropertyState.FAILURE ? (Property<U>) this : upperMonadStructureReference().fail();
             }
         }
         return(Property<U>) this;

@@ -17,7 +17,7 @@ class MutableProperty<T> extends AbstractProperty<T> {
         value = null;
     }
 
-    private Property<T> switchTo(STATE state) {
+    MutableProperty<T> switchTo(STATE state) {
         this.state = state;
         if (state != STATE.SUCCESS) {
             value = null; // free reference
@@ -29,8 +29,12 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final <U> Property<U> flatMap(PropertyMap<? super T, ? extends Property<? extends U>> f) {
         if (state == STATE.SUCCESS) {
-            Property<? extends U> nextProp = f.apply((T) value);
-            return (Property<U>) (nextProp != null ? nextProp : switchTo(STATE.FAIL_UNCUT));
+            Property<? extends U> nextProp = null;
+            try {
+            	nextProp = f.apply((T) value);
+            } finally {
+            	return (Property<U>) (nextProp != null ? nextProp : switchTo(STATE.FAIL_UNCUT));
+            }
         }
         return (Property<U>) this;
     }
@@ -39,7 +43,13 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final <U> Property<U> map(PropertyMap<? super T, ? extends U> f) {
         if (state == STATE.SUCCESS) {
-            value = f.apply((T) value);
+        	boolean success = false;
+        	try {
+        		value = f.apply((T) value);
+        		success = true;
+        	} finally {
+        		if (!success) switchTo(STATE.FAIL_UNCUT);
+        	}
         }
         return (Property<U>) this;
     }
@@ -48,10 +58,12 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final Property<T> filter(PropertyPredicate<? super T> predicate) {
         if (state == STATE.SUCCESS) {
-            if (predicate.test((T) value)) {
-                return this;
-            }
-            switchTo(STATE.FAIL_UNCUT);
+        	boolean predicateOk = false;
+        	try {
+        		predicateOk = predicate.test((T) value);
+        	} finally {
+        		if (!predicateOk) switchTo(STATE.FAIL_UNCUT);
+        	}
         }
         return this;
     }
@@ -76,13 +88,17 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final <U> Property<U> match(PropertyMatch<? super T, ? extends Property<? extends U>> f) {
         if (state != STATE.FAIL_CUT) {
-            PropertyState exposedState;
+            PropertyState exposedState = null;
             if (state == STATE.FAIL_UNCUT) exposedState = PropertyState.FAILURE;
             else if (state == STATE.SUCCESS) exposedState = PropertyState.SUCCESS;
-            else throw new IllegalStateException(String.format("The provided state %s cannot be exposed", state.name()));
+            assert exposedState != null : "Exposed state is not expected to be null";
 
-            Property<? extends U> nextProp = f.apply(exposedState, (T) value);
-            return nextProp != null ? (Property<U>) nextProp : upperMonadStructureReference().fail();
+            Property<? extends U> nextProp = null;
+            try {
+            	nextProp = f.apply(exposedState, (T) value);
+            } finally {
+            	return nextProp != null ? (Property<U>) nextProp : upperMonadStructureReference().fail();
+            }
         }
         return(Property<U>) this;
     }
