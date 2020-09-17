@@ -26,7 +26,7 @@ public interface Property<T> {
 
     Property<T> registerFailure(Failure code);
 
-    /* Failure or Success discrimination */
+    /** Failure of Success discrimination */
 
     @FunctionalInterface
     interface PropertyMatch<U, V> {

@@ -6,7 +6,7 @@ import be.jdevelopment.tools.validation.property.Property;
 
 abstract class AbstractProperty<T> implements Property<T> {
 
-    enum STATE {
+    protected enum STATE {
         SUCCESS, FAIL_UNCUT, FAIL_CUT;
     }
 
