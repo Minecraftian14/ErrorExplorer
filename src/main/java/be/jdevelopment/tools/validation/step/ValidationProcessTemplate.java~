@@ -70,4 +70,42 @@ abstract class ValidationProcessTemplate {
                 .map(andThen::asVoidOperator);
     }
 
+    static class SimpleAction<T> implements ActionOnProvider {
+        PropertyToken propertyToken;
+        ValidationRule<? extends T> rule;
+        Callback<? super T> andThen;
+        SimpleAction(PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen) {
+            this.propertyToken = propertyToken;
+            this.rule = rule;
+            this.andThen = andThen;
+        }
+
+        @Override
+        public void perform(MonadOfProperties monadOfProperties, ObjectProvider objectProvider) {
+            performDestructuredAction(monadOfProperties, objectProvider, propertyToken, rule, andThen);
+        }
+    }
+
+    static class MultipleAction<T, U> implements ActionOnProvider {
+        PropertyToken propertyToken;
+        ValidationRule<? extends Iterable<T>> onCollectionRule;
+        ValidationRule<U> onSingleRule;
+        Callback<? super Iterable<U>> andThen;
+        MultipleAction(PropertyToken propertyToken,
+                     ValidationRule<? extends Iterable<T>> onCollectionRule,
+                     ValidationRule<U> onSingleRule,
+                     Callback<? super Iterable<U>> andThen) {
+            this.propertyToken = propertyToken;
+            this.onCollectionRule = onCollectionRule;
+            this.onSingleRule = onSingleRule;
+            this.andThen = andThen;
+        }
+
+        @Override
+        public void perform(MonadOfProperties monadOfProperties, ObjectProvider objectProvider) {
+            var onEachItem = new ContextualizedCallback<T, U>(monadOfProperties, propertyToken, onSingleRule, andThen);
+            performDestructuredAction(monadOfProperties, objectProvider, propertyToken, onCollectionRule, onEachItem::call);
+        }
+    }
+
 }
