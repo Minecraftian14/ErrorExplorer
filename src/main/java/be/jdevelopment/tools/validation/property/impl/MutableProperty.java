@@ -1,5 +1,6 @@
-package be.jdevelopment.tools.validation.error.impl;
+package be.jdevelopment.tools.validation.property.impl;
 
+import be.jdevelopment.tools.validation.error.Failure;
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.PropertyState;
 
@@ -26,7 +27,7 @@ class MutableProperty<T> extends AbstractProperty<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public final <U> Property<U> flatMap(MaybeMap<? super T, ? extends Property<? extends U>> f) {
+    public final <U> Property<U> flatMap(PropertyMap<? super T, ? extends Property<? extends U>> f) {
         if (state == STATE.SUCCESS) {
             Property<? extends U> nextProp = f.apply((T) value);
             return (Property<U>) (nextProp != null ? nextProp : switchTo(STATE.FAIL_UNCUT));
@@ -36,7 +37,7 @@ class MutableProperty<T> extends AbstractProperty<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public final <U> Property<U> map(MaybeMap<? super T, ? extends U> f) {
+    public final <U> Property<U> map(PropertyMap<? super T, ? extends U> f) {
         if (state == STATE.SUCCESS) {
             value = f.apply((T) value);
         }
@@ -45,7 +46,7 @@ class MutableProperty<T> extends AbstractProperty<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public final Property<T> filter(MaybePredicate<? super T> predicate) {
+    public final Property<T> filter(PropertyPredicate<? super T> predicate) {
         if (state == STATE.SUCCESS) {
             if (predicate.test((T) value)) {
                 return this;
@@ -63,9 +64,17 @@ class MutableProperty<T> extends AbstractProperty<T> {
         return this;
     }
 
+    @Override public final Property<T> registerFailure(Failure failure) {
+        if(state == STATE.FAIL_UNCUT) {
+            upperBuilderReference().withFailure(failure); // Directly use withFailure of the builder
+            switchTo(STATE.FAIL_CUT);
+        }
+        return this;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public final <U> Property<U> match(MaybeMatch<? super T, ? extends Property<? extends U>> f) {
+    public final <U> Property<U> match(PropertyMatch<? super T, ? extends Property<? extends U>> f) {
         if (state != STATE.FAIL_CUT) {
             PropertyState exposedState;
             if (state == STATE.FAIL_UNCUT) exposedState = PropertyState.FAILURE;

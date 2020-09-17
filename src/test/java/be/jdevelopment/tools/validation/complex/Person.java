@@ -10,9 +10,8 @@ record Person(MailCollection mails, Address address) {
     Collection<String> getAllMails() {
         return Optional.ofNullable(mails())
                 .map(MailCollection::getMails)
-                .map(it -> Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED))
                 .stream()
-                .flatMap(splt -> StreamSupport.stream(splt, false))
+                .flatMap(iterable -> StreamSupport.stream(iterable.spliterator(), false))
                 .collect(Collectors.toList());
     }
 

@@ -1,4 +1,4 @@
-package be.jdevelopment.tools.validation.error.impl;
+package be.jdevelopment.tools.validation.property.impl;
 
 import be.jdevelopment.tools.validation.error.FailureBuilder;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
