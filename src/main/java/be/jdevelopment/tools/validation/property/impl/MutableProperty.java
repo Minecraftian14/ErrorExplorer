@@ -53,6 +53,20 @@ class MutableProperty<T> extends AbstractProperty<T> {
         }
         return (Property<U>) this;
     }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public final Property<T> or (PropertySupplier<? extends T> supplier) {
+    	if (state == STATE.FAIL_UNCUT) {
+    		Property<? extends T> alternate = null;
+    		try {
+    			alternate = supplier.supply();
+    		} finally {
+    			return alternate == null ? this : (Property<T>) alternate;
+    		}
+    	}
+    	return this;
+    }
 
     @SuppressWarnings("unchecked")
     @Override

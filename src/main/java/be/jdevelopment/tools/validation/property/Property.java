@@ -15,18 +15,25 @@ public interface Property<T> {
 
     <U> Property<U> map(PropertyMap<? super T, ? extends U> f);
 
+    Property<T> registerFailureCode(String code);
+
+    Property<T> registerFailure(Failure code);
+
+    /* Failure or Success discrimination */
+    
+    @FunctionalInterface
+    interface PropertySupplier<U> {
+    	Property<U> supply();
+    }
+    
+    Property<T> or(PropertySupplier<? extends T> supplier);
+
     @FunctionalInterface
     interface PropertyPredicate<U> {
         boolean test(U arg);
     }
 
     Property<T> filter(PropertyPredicate<? super T> predicate);
-
-    Property<T> registerFailureCode(String code);
-
-    Property<T> registerFailure(Failure code);
-
-    /* Failure or Success discrimination */
 
     @FunctionalInterface
     interface PropertyMatch<U, V> {

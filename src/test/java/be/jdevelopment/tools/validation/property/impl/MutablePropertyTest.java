@@ -81,4 +81,5 @@ public class MutablePropertyTest {
 			assertEquals(AbstractProperty.STATE.FAIL_UNCUT, mut.state);
 		}
 	}
+	
 }
