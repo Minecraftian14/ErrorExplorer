@@ -14,14 +14,7 @@ import static java.util.stream.Collectors.toList;
 
 public class SourcedValidationProcess extends ValidationProcessTemplate {
 
-    private final MonadOfProperties monadOfProperties;
-    private final ObjectProvider objectProvider;
-    private final AutoCommitValidationProcess autoCommitDelegationProcess;
-    SourcedValidationProcess(MonadOfProperties monadOfProperties, ObjectProvider provider) {
-        this.monadOfProperties = requireNonNull(monadOfProperties);
-        this.objectProvider = requireNonNull(provider);
-        this.autoCommitDelegationProcess = new AutoCommitValidationProcess(monadOfProperties, provider);
-    }
+    SourcedValidationProcess() {}
     
     @FunctionalInterface
     interface LaterAction {
@@ -31,7 +24,7 @@ public class SourcedValidationProcess extends ValidationProcessTemplate {
     private Stack<LaterAction> actions = new Stack<>();
     private Stack<PropertyToken> properties = new Stack<>();
 
-    public <T> SourcedValidationProcess performStep(PropertyToken propertyToken, ValidationRule<? extends T> rule) {
+    public <T> SourcedValidationProcess addStep(PropertyToken propertyToken, ValidationRule<? extends T> rule) {
     	actions.add((autoCommitDelegationProcess, successHandler) ->
     		autoCommitDelegationProcess.performStep(propertyToken, rule, successHandler)
     	);
@@ -41,7 +34,7 @@ public class SourcedValidationProcess extends ValidationProcessTemplate {
         return this;
     }
 
-    public <T, U> SourcedValidationProcess performCollectionSteps(PropertyToken propertyToken,
+    public <T, U> SourcedValidationProcess addCollectionSteps(PropertyToken propertyToken,
                                                                      ValidationRule<? extends Iterable<T>> onCollectionRule,
                                                                      ValidationRule<U> onSingleRule) {
         actions.add((autoCommitDelegationProcess, successHandler)

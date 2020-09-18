@@ -4,6 +4,9 @@ import be.jdevelopment.tools.validation.ObjectProvider;
 import be.jdevelopment.tools.validation.property.Property;
 import be.jdevelopment.tools.validation.property.MonadOfProperties;
 import be.jdevelopment.tools.validation.step.ValidationProcesses;
+import be.jdevelopment.tools.validation.step.SourcedValidationProcess;
+import be.jdevelopment.tools.validation.step.ValidationProcessResult;
+import be.jdevelopment.tools.validation.error.*;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -11,6 +14,10 @@ import java.util.regex.Pattern;
 import static java.util.regex.Pattern.compile;
 
 class AddressFactory {
+	
+	private final SourcedValidationProcess validationProcess = ValidationProcesses.newSourcedValidationProcess()
+		.<String> addStep(AddressProperty.STREET, AddressFactory::validateRequiredString)
+		.<String> addStep(AddressProperty.POSTAL_CODE, AddressFactory::validatePostalCode);
 
     private final MonadOfProperties monad;
     AddressFactory(MonadOfProperties monad) {
@@ -27,9 +34,19 @@ class AddressFactory {
     Address create(ObjectProvider provider) {
         MutAddress mutAddress = new MutAddress();
 
+        /*
         ValidationProcesses.newAutoCommitProcess(monad, provider)
                 .performStep(AddressProperty.STREET, AddressFactory::validateRequiredString, mutAddress::setStreet)
                 .performStep(AddressProperty.POSTAL_CODE, AddressFactory::validatePostalCode, mutAddress::setPostalCode);
+        */
+        
+        try(ValidationProcessResult result = validationProcess.performSteps(provider)) {
+        	mutAddress.street = (String) result.get(AddressProperty.STREET.getName());
+        	mutAddress.postalCode = (String) result.get(AddressProperty.POSTAL_CODE.getName());
+        } catch(InvalidUserInputException invalidException) {
+        	for(Failure failure: invalidException.getFailures())
+        		monad.fail().registerFailure(failure);
+        }
 
         return new Address(mutAddress.street, mutAddress.postalCode);
     }

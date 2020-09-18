@@ -29,4 +29,12 @@ public class ValidationProcessResult implements AutoCloseable {
 		properties = null;
 	}
 	
+	public Object get(String tokenName) {
+		int index = 0;
+		for(; index < properties.length; index++)
+			if (tokenName.equals(properties[index])) break;
+		
+		return results[index];
+	}
+	
 }
