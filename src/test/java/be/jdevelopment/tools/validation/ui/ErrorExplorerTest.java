@@ -10,7 +10,7 @@ import be.jdevelopment.tools.validation.util.ObjectProviderHelper;
 import java.io.IOException;
 import java.util.HashSet;
 
-public class ErrorExplorerTest  {
+public class ErrorExplorerTest {
 
     public ErrorExplorerTest() throws IOException {
 
@@ -20,7 +20,7 @@ public class ErrorExplorerTest  {
         var provider = ObjectProviderHelper.objectProviderFromJsonFile("treebased/membersWrongName.json");
         Member info = new MemberFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
-        new ErrorExplorer(failures).show();
+        new ErrorExplorer(failures).show("ErrorExplorerTest");
     }
 
     public static void main(String[] args) throws IOException {
