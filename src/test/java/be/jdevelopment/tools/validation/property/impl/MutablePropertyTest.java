@@ -15,7 +15,7 @@ public class MutablePropertyTest {
 	
 	static class Util {
 		Stack<String> errors = new Stack<>();
-		FailureBuilder builder = errors::add;
+		FailureBuilder builder = (errorCode, message) -> errors.add(errorCode + message);
 		MonadStructure struct = new MonadStructure(builder);
 		
 		<T> MutableProperty<T> map(String value, Function<String, T> f) {

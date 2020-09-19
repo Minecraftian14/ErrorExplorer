@@ -12,9 +12,9 @@ import static java.util.Objects.requireNonNull;
 abstract class ValidationProcessTemplate {
 
     protected static MonadOfProperties deriveFromParent(PropertyToken propertyToken, MonadOfProperties baseMonad) {
-        assert propertyToken != null:
+        assert propertyToken != null :
                 "Property Token is null. This should have been handled by parent caller";
-        assert baseMonad != null:
+        assert baseMonad != null :
                 "Base monad to derive is null. This should have been handled by parent caller";
 
         return Monads.createOnFailureBuilder(new ChildMonadFailureBuilder(baseMonad, propertyToken));
@@ -23,18 +23,22 @@ abstract class ValidationProcessTemplate {
     static class ChildMonadFailureBuilder implements FailureBuilder {
         private final MonadOfProperties baseMonad;
         private final PropertyToken property;
+
         ChildMonadFailureBuilder(MonadOfProperties baseMonad, PropertyToken property) {
-            assert property != null:
+            assert property != null :
                     "Property Token is null. This should have been handled by parent caller";
-            assert baseMonad != null:
+            assert baseMonad != null :
                     "Base monad to derive is null. This should have been handled by parent caller";
             this.property = property;
             this.baseMonad = baseMonad;
         }
 
         @Override
-        public void withCode(String errorCode) {
-            baseMonad.fail().registerFailureCode(String.format("%s.%s", property.getName(), errorCode));
+        public void withCode(String errorCode, String message) {
+            if (message != null && !message.strip().equals(""))
+                baseMonad.fail().registerFailureCode(String.format("%s.%s: %s ", property.getName(), errorCode, message));
+            else
+                baseMonad.fail().registerFailureCode(String.format("%s.%s", property.getName(), errorCode));
         }
     }
 
@@ -59,8 +63,7 @@ abstract class ValidationProcessTemplate {
     }
 
     static <T> void performDestructuredAction(MonadOfProperties monadOfProperties, ObjectProvider objectProvider,
-                                                      PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen)
-    {
+                                              PropertyToken propertyToken, ValidationRule<? extends T> rule, Callback<? super T> andThen) {
         requireNonNull(propertyToken);
         requireNonNull(monadOfProperties);
         MonadOfProperties subMonad = deriveFromParent(propertyToken, monadOfProperties);

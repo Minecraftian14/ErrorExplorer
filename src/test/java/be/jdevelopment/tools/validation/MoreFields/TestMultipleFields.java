@@ -13,13 +13,17 @@ import static org.junit.Assert.assertTrue;
 
 public class TestMultipleFields {
 
+    // failures.forEach(failure -> System.out.println(failure.getCode()));
+
     private HashSet<Failure> failures;
     private FailureBuilder failureBuilder;
 
     @Before
     public void setUp() {
         failures = new HashSet<>();
-        failureBuilder = errorCode -> failures.add(errorCode::toString);
+        failureBuilder = (errorCode, message) -> failures.add(() ->
+                errorCode + ((message != null && !message.strip().equals("")) ? (": " + message) : "")
+        );
     }
 
     @org.junit.Test
@@ -43,7 +47,7 @@ public class TestMultipleFields {
         Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
-        assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("name.formatError")).count());
+        assertEquals(1, failures.stream().filter(failure -> failure.getCode().startsWith("name.formatError")).count());
     }
 
     @org.junit.Test
@@ -53,7 +57,7 @@ public class TestMultipleFields {
         Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
-        assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("number.invalidLength")).count());
+        assertEquals(1, failures.stream().filter(failure -> failure.getCode().startsWith("number.invalidLength")).count());
     }
 
     @org.junit.Test
@@ -63,7 +67,7 @@ public class TestMultipleFields {
         Contact contact = new ContactFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
-        assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("debt.notPositive")).count());
+        assertEquals(1, failures.stream().filter(failure -> failure.getCode().startsWith("debt.notPositive")).count());
     }
 
 }

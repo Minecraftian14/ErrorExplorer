@@ -29,7 +29,7 @@ public class SubObjectValidationTest {
     @Before
     public void setUp() {
         failures = new HashSet<>();
-        failureBuilder = errorCode -> failures.add(errorCode::toString);
+        failureBuilder = FailureBuilder.getDefault(failures);
     }
 
     @Test
@@ -56,10 +56,10 @@ public class SubObjectValidationTest {
 
         assertEquals(5, failures.size());
         assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.required"::equals));
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses.duplicates"::equals));
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[1].format"::equals));
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[2].format"::equals));
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("emailAddresses[3].type"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("emailAddresses.duplicates")));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("emailAddresses[1].format")));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("emailAddresses[2].format")));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("emailAddresses[3].type")));
     }
 
     @Test
@@ -69,9 +69,9 @@ public class SubObjectValidationTest {
         new PersonFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(3, failures.size());
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.postalCode.format"::equals));
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("address.street.required"::equals));
-        assertTrue(failures.stream().map(Failure::getCode).anyMatch("defaultEmail.notfound"::equals));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("address.postalCode.format")));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("address.street.required")));
+        assertTrue(failures.stream().map(Failure::getCode).anyMatch(s -> s.contains("defaultEmail.notfound")));
     }
 
     private static ObjectProvider fromJsonFile(String path) throws IOException {

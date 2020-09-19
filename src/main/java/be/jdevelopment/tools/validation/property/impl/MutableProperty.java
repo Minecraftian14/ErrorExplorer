@@ -7,6 +7,7 @@ import be.jdevelopment.tools.validation.property.PropertyState;
 class MutableProperty<T> extends AbstractProperty<T> {
 
     Object value;
+
     MutableProperty(T value, MonadStructure structure) {
         super(STATE.SUCCESS, structure);
         this.value = value;
@@ -14,13 +15,13 @@ class MutableProperty<T> extends AbstractProperty<T> {
 
     MutableProperty(MonadStructure structure) {
         super(STATE.FAIL_UNCUT, structure);
-        value = null;
+//        value = null;
     }
 
     MutableProperty<T> switchTo(STATE state) {
         this.state = state;
         if (state != STATE.SUCCESS) {
-            value = null; // free reference
+//            value = null; // free reference
         }
         return this;
     }
@@ -31,9 +32,9 @@ class MutableProperty<T> extends AbstractProperty<T> {
         if (state == STATE.SUCCESS) {
             Property<? extends U> nextProp = null;
             try {
-            	nextProp = f.apply((T) value);
+                nextProp = f.apply((T) value);
             } finally {
-            	return (Property<U>) (nextProp != null ? nextProp : switchTo(STATE.FAIL_UNCUT));
+                return (Property<U>) (nextProp != null ? nextProp : switchTo(STATE.FAIL_UNCUT));
             }
         }
         return (Property<U>) this;
@@ -43,13 +44,13 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final <U> Property<U> map(PropertyMap<? super T, ? extends U> f) {
         if (state == STATE.SUCCESS) {
-        	boolean success = false;
-        	try {
-        		value = f.apply((T) value);
-        		success = true;
-        	} finally {
-        		if (!success) switchTo(STATE.FAIL_UNCUT);
-        	}
+            boolean success = false;
+            try {
+                value = f.apply((T) value);
+                success = true;
+            } finally {
+                if (!success) switchTo(STATE.FAIL_UNCUT);
+            }
         }
         return (Property<U>) this;
     }
@@ -58,27 +59,29 @@ class MutableProperty<T> extends AbstractProperty<T> {
     @Override
     public final Property<T> filter(PropertyPredicate<? super T> predicate) {
         if (state == STATE.SUCCESS) {
-        	boolean predicateOk = false;
-        	try {
-        		predicateOk = predicate.test((T) value);
-        	} finally {
-        		if (!predicateOk) switchTo(STATE.FAIL_UNCUT);
-        	}
+            boolean predicateOk = false;
+            try {
+                predicateOk = predicate.test((T) value);
+            } finally {
+                if (!predicateOk) switchTo(STATE.FAIL_UNCUT);
+            }
         }
         return this;
     }
 
-    @Override public final Property<T> registerFailureCode(String code) {
-        if(state == STATE.FAIL_UNCUT) {
-            upperBuilderReference().withCode(code);
+    @Override
+    public final Property<T> registerFailureCode(String code) {
+        if (state == STATE.FAIL_UNCUT) {
+            upperBuilderReference().withCode(code, value == null ? "" : value.toString());
             switchTo(STATE.FAIL_CUT);
         }
         return this;
     }
 
-    @Override public final Property<T> registerFailure(Failure failure) {
-        if(state == STATE.FAIL_UNCUT) {
-            upperBuilderReference().withFailure(failure); // Directly use withFailure of the builder
+    @Override
+    public final Property<T> registerFailure(Failure failure) {
+        if (state == STATE.FAIL_UNCUT) {
+            upperBuilderReference().withFailure(failure, value == null ? "" : value.toString()); // Directly use withFailure of the builder
             switchTo(STATE.FAIL_CUT);
         }
         return this;
@@ -95,12 +98,12 @@ class MutableProperty<T> extends AbstractProperty<T> {
 
             Property<? extends U> nextProp = null;
             try {
-            	nextProp = f.apply(exposedState, (T) value);
+                nextProp = f.apply(exposedState, (T) value);
             } finally {
-            	return nextProp != null ? (Property<U>) nextProp :
-            		exposedState == PropertyState.FAILURE ? (Property<U>) this : upperMonadStructureReference().fail();
+                return nextProp != null ? (Property<U>) nextProp :
+                        exposedState == PropertyState.FAILURE ? (Property<U>) this : upperMonadStructureReference().fail();
             }
         }
-        return(Property<U>) this;
+        return (Property<U>) this;
     }
 }

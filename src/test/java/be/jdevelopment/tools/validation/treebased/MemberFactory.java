@@ -14,7 +14,7 @@ public class MemberFactory {
 
     private final MonadOfProperties monad;
 
-    MemberFactory(MonadOfProperties monad) {
+    public MemberFactory(MonadOfProperties monad) {
         this.monad = monad;
     }
 
@@ -32,7 +32,7 @@ public class MemberFactory {
         }
     }
 
-    Member create(ObjectProvider provider) {
+    public Member create(ObjectProvider provider) {
         MutMember mutMember = new MutMember();
 
         ValidationProcesses.newAutoCommitProcess(monad, provider)

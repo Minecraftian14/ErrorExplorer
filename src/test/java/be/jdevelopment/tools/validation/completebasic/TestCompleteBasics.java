@@ -13,13 +13,15 @@ import static org.junit.Assert.assertTrue;
 
 public class TestCompleteBasics {
 
+    // failures.forEach(failure -> System.out.println(failure.getCode()));
+
     private HashSet<Failure> failures;
     private FailureBuilder failureBuilder;
 
     @Before
     public void setUp() {
         failures = new HashSet<>();
-        failureBuilder = errorCode -> failures.add(errorCode::toString);
+        failureBuilder = FailureBuilder.getDefault(failures);
     }
 
     @org.junit.Test
@@ -49,7 +51,7 @@ public class TestCompleteBasics {
         new InfoFactory(Monads.createOnFailureBuilder(failureBuilder)).create(provider);
 
         assertEquals(1, failures.size());
-        assertEquals(1, failures.stream().filter(failure -> failure.getCode().equals("data.longData")).count());
+        assertEquals(1, failures.stream().filter(failure -> failure.getCode().startsWith("data.longData")).count());
     }
 
 }
